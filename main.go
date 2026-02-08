@@ -1,9 +1,9 @@
 package main
 
 import (
-	"leafy/internal/tui"
 	"log"
 
+	"github.com/Nightails/Leafy/internal/tui"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
