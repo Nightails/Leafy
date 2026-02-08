@@ -149,5 +149,7 @@ func (m USBModel) View() string {
 		}
 	}
 
+	b.WriteString("\n\n" + helpBar)
+
 	return b.String()
 }
