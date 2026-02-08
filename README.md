@@ -5,11 +5,11 @@
 
 **Leafy** is your cozy terminal companion for transferring media from external drives. It turns the chore of manual file transfers into a breezy, interactive experience right in your shell.
 
-### 💡 Motivation
+## 💡 Motivation
 
 I started vlogging my motorcycle journey recently, and found files transferring from my action camera and external mic is a *very* tedious task. So **Leafy** is created to automate the process. Now I can quickly and easily transfer all the captured media to my editing PC by simply running **Leafy** in the terminal! 🙌
 
-### 🚀 Quickstart
+## 🚀 Quickstart
 
 A binary will be released on GitHub later. Alternatively, you can install it using Go.
 
@@ -25,7 +25,7 @@ chmod +x leafy
 ./leafy
 ```
 
-### 📖 Usage
+## 📖 Usage
 
 General usage instructions:
 
@@ -35,14 +35,14 @@ General usage instructions:
 - **Manual Scan**: Press `s` at any time to trigger a new scan of your USB ports.
 - **Exiting**: Press `ctrl+c` to safely exit the application.
 
-### 🤝 Contributing
+## 🤝 Contributing
 
 To set up Leafy for local development, ensure you have the following dependencies installed:
 
 -   **Go** (version 1.25 or later)
 -   **lsblk**: The application relies on the `lsblk` command-line utility (usually pre-installed on most Linux distributions).
 
-#### Development Steps
+### Development Steps
 
 ```bash
 # 1. Clone the repository:
@@ -59,6 +59,6 @@ go run main.go
 go build -o leafy main.go
 ```
 
-### 📜 License
+## 📜 License
 
 This project is licensed under the terms of the MIT License. See [LICENSE](LICENSE) for more details.
