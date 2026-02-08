@@ -5,9 +5,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/Nightails/Leafy/internal/usb"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nightails/leafy/internal/usb"
 )
 
 type usbDeviceItem struct {

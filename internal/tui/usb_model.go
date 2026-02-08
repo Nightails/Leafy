@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Nightails/Leafy/internal/usb"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nightails/leafy/internal/usb"
 )
 
 type errMsg error

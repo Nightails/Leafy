@@ -1,4 +1,4 @@
-module github.com/Nightails/Leafy
+module github.com/nightails/leafy
 
 go 1.25
 

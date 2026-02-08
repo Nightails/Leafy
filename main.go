@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/Nightails/Leafy/internal/tui"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nightails/leafy/internal/tui"
 )
 
 func main() {
