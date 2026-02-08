@@ -1,30 +1,28 @@
 package main
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"fmt"
+	"leafy/internal/usb"
+)
 
 func main() {
-	m := model{}
-	p := tea.NewProgram(m)
-	_, _ = p.Run()
-}
+	devs, err := usb.FindUSBDevices()
+	if err != nil {
+		panic(err)
+	}
 
-type model struct{}
+	if len(devs) == 0 {
+		fmt.Println("No USB devices found")
+		return
+	}
 
-func (m model) Init() tea.Cmd {
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
-			return m, tea.Quit
+	for _, d := range devs {
+		if len(d.Children) == 0 {
+			fmt.Printf("Device %s has no partition\n", d.Name)
+			continue
+		}
+		for _, p := range d.Children {
+			fmt.Printf("Device %s has partition %s\n", d.Name, p.Label)
 		}
 	}
-	return m, nil
-}
-
-func (m model) View() string {
-	return "Hello World!"
 }
