@@ -96,7 +96,7 @@ func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.scanStartedAt = time.Now()
 		}
 		// save results immediately, but keep "scanning" until minScanDuration has passed
-		m.devices = []usb.BlockDevice(msg)
+		m.devices = msg
 		remaining := minScanDuration - time.Since(m.scanStartedAt)
 		return m, finishAfterCmd(remaining)
 	case errMsg:
