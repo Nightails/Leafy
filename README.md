@@ -27,16 +27,13 @@ chmod +x leafy
 
 ### 📖 Usage
 
-Leafy provides an interactive interface to monitor your USB devices:
+General usage instructions:
 
-```text
-- Automatic Scanning: The app starts scanning immediately upon launch.
-- Manual Refresh: Press 's' to trigger a new scan.
-- Navigation:
-    - Use 'j' or 'k' (or arrow keys) to navigate.
-    - Press 'enter' to select a specific device.
-- Exiting: Press 'ctrl+c' to safely exit the application.
-```
+- **Automatic Scanning**: The app starts scanning for USB devices immediately upon launch.
+- **Navigation**: Use `j`/`k` or arrow keys to move through the list of detected devices.
+- **Selection**: Press `enter` to select a device for further actions.
+- **Manual Scan**: Press `s` at any time to trigger a new scan of your USB ports.
+- **Exiting**: Press `ctrl+c` to safely exit the application.
 
 ### 🤝 Contributing
 
