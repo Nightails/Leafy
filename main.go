@@ -23,6 +23,13 @@ func main() {
 		}
 		for _, p := range d.Children {
 			fmt.Printf("Device %s has partition %s\n", d.Name, p.Label)
+			if p.Mountpoints != nil && len(p.Mountpoints) > 0 {
+				for _, m := range p.Mountpoints {
+					if m != "" {
+						fmt.Printf("Mounted on %s\n", m)
+					}
+				}
+			}
 		}
 	}
 }

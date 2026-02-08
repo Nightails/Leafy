@@ -14,3 +14,8 @@ func FindUSBDevices() ([]BlockDevice, error) {
 	}
 	return devs, nil
 }
+
+func MountUSBDevice(dev BlockDevice) error {
+	// TODO: Implement USB device mounting logic
+	return nil
+}
