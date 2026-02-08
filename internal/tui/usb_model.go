@@ -2,10 +2,10 @@ package tui
 
 import (
 	"fmt"
-	"leafy/internal/usb"
 	"strings"
 	"time"
 
+	"github.com/Nightails/Leafy/internal/usb"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 )
