@@ -7,7 +7,7 @@
 
 ### 💡 Motivation
 
-I started vlogging my motorcycle journey recently, and found files transferring from my action camera and external mic is a *very* tedious task. So I created **Leafy** to automate the process. Now I can quickly and easily transfer all my media to my editing PC by simply running in the terminal! 🙌
+I started vlogging my motorcycle journey recently, and found files transferring from my action camera and external mic is a *very* tedious task. So **Leafy** is created to automate the process. Now I can quickly and easily transfer all the captured media to my editing PC by simply running **Leafy** in the terminal! 🙌
 
 ### 🚀 Quickstart
 
