@@ -19,7 +19,12 @@ type BlockDevice struct {
 }
 
 func readLSBLK() (LSBLK, error) {
-	args := []string{"-J", "-o", "NAME,PATH,LABEL,TRAN,TYPE,MOUNTPOINTS"}
+	args := []string{
+		"-J",
+		"--tree",
+		"-f",
+		"-o", "NAME,PATH,LABEL,TRAN,TYPE,MOUNTPOINTS",
+	}
 	cmd := exec.Command("lsblk", args...)
 	raw, err := cmd.Output()
 	if err != nil {

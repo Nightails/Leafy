@@ -2,34 +2,23 @@ package main
 
 import (
 	"fmt"
+	"leafy/internal/tui"
 	"leafy/internal/usb"
+	"log"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
+	m := tui.USBModel{}
 	devs, err := usb.FindUSBDevices()
 	if err != nil {
-		panic(err)
+		m.Error = fmt.Sprintf("Failed to find USB devices: %v", err)
 	}
+	m.Devices = devs
 
-	if len(devs) == 0 {
-		fmt.Println("No USB devices found")
-		return
-	}
-
-	for _, d := range devs {
-		if len(d.Children) == 0 {
-			fmt.Printf("Device %s has no partition\n", d.Name)
-			continue
-		}
-		for _, p := range d.Children {
-			fmt.Printf("Device %s has partition %s\n", d.Name, p.Label)
-			if p.Mountpoints != nil && len(p.Mountpoints) > 0 {
-				for _, m := range p.Mountpoints {
-					if m != "" {
-						fmt.Printf("Mounted on %s\n", m)
-					}
-				}
-			}
-		}
+	p := tea.NewProgram(m, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		log.Panicf("Program exited with error: %v", err)
 	}
 }
