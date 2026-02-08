@@ -1,3 +1,17 @@
 package tui
 
-var helpBar = helpStyle.Render("↑/k up * ↓/j down * enter select * s scan * ctrl+c quit")
+import "strings"
+
+var controls = []string{
+	"[↑/k] up",
+	"[↓/j] down",
+	"[enter] mount",
+	"[tab] continue",
+	"[s] scan",
+	"[ctrl+c] quit",
+}
+
+func helpBarView() string {
+	help := strings.Join(controls, " | ")
+	return helpStyle.Render(help)
+}

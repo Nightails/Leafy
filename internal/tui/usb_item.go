@@ -22,7 +22,7 @@ func (i usbDeviceItem) Title() string {
 }
 
 func (i usbDeviceItem) Description() string {
-	return fmt.Sprintf("%s | %s | %s", i.dev.Path, i.dev.Tran, i.dev.Type)
+	return fmt.Sprintf("%s | %s | %s", i.dev.Path, i.dev.Tran, i.dev.Model)
 }
 
 func (i usbDeviceItem) FilterValue() string {

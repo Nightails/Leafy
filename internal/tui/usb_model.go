@@ -167,16 +167,16 @@ func (m USBModel) View() string {
 		b.WriteString("\n" + textStyle.Render("Scanning complete.") + "\n\n")
 		if len(m.devList.Items()) == 0 {
 			b.WriteString(textStyle.Render("No USB devices found.") + "\n\n")
-			b.WriteString(helpBar)
+			b.WriteString(helpBarView())
 			return b.String()
 		}
 
 		b.WriteString(textStyle.Render("USB Devices:") + "\n\n")
 		b.WriteString(m.devList.View())
-		b.WriteString("\n\n" + helpBar)
+		b.WriteString("\n\n" + helpBarView())
 		return b.String()
 	}
 
-	b.WriteString("\n\n" + helpBar)
+	b.WriteString("\n\n" + helpBarView())
 	return b.String()
 }

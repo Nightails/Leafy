@@ -14,6 +14,7 @@ type BlockDevice struct {
 	Label       string        `json:"label"`
 	Tran        string        `json:"tran"`
 	Type        string        `json:"type"`
+	Model       string        `json:"model"`
 	Mountpoints []string      `json:"mountpoints"`
 	Children    []BlockDevice `json:"children"`
 }
@@ -23,7 +24,7 @@ func readLSBLK() (LSBLK, error) {
 		"-J",
 		"--tree",
 		"-f",
-		"-o", "NAME,PATH,LABEL,TRAN,TYPE,MOUNTPOINTS",
+		"-o", "NAME,PATH,LABEL,TRAN,TYPE,MODEL,MOUNTPOINTS",
 	}
 	cmd := exec.Command("lsblk", args...)
 	raw, err := cmd.Output()
