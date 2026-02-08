@@ -22,7 +22,6 @@ const (
 )
 
 type USBModel struct {
-	devices       []usb.BlockDevice
 	spinner       spinner.Model
 	devList       list.Model
 	scanning      bool
@@ -50,16 +49,6 @@ func NewUSBModel() USBModel {
 		devList:  l,
 		scanning: true,
 	}
-}
-
-func clamp(n, lo, hi int) int {
-	if n < lo {
-		return lo
-	}
-	if n > hi {
-		return hi
-	}
-	return n
 }
 
 func scanUSBDevicesCmd() tea.Cmd {
@@ -106,7 +95,6 @@ func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			m.err = nil
-			m.devices = nil
 			m.scanning = true
 			m.scanStartedAt = time.Now()
 			return m, tea.Batch(
@@ -126,12 +114,11 @@ func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.scanStartedAt.IsZero() {
 			m.scanStartedAt = time.Now()
 		}
-		// save results immediately, but keep "scanning" until minScanDuration has passed
-		m.devices = msg
 
 		// Convert devices to list items
-		items := make([]list.Item, 0, len(m.devices))
-		for _, d := range m.devices {
+		devs := msg
+		items := make([]list.Item, 0, len(devs))
+		for _, d := range devs {
 			items = append(items, usbDeviceItem{dev: d})
 		}
 		m.devList.SetItems(items)
@@ -165,25 +152,26 @@ func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m USBModel) View() string {
 	if m.quitting {
-		return "Quitting..."
+		return "\n" + textStyle.Render("Quitting...")
 	}
 
 	if m.err != nil && !m.scanning {
-		return m.err.Error()
+		return textStyle.Render(m.err.Error())
 	}
 
 	var b strings.Builder
 
 	if m.scanning {
-		b.WriteString(fmt.Sprintf("%s Scanning USB devices...\n\n", m.spinner.View()))
+		b.WriteString(fmt.Sprintf("\n%s%s\n\n", m.spinner.View(), textStyle.Render("Scanning for USB devices...")))
 	} else {
-		b.WriteString("Scanning complete.\n\n")
-		if len(m.devices) == 0 {
-			b.WriteString("No USB devices found.\n")
+		b.WriteString("\n" + textStyle.Render("Scanning complete.") + "\n\n")
+		if len(m.devList.Items()) == 0 {
+			b.WriteString(textStyle.Render("No USB devices found.") + "\n\n")
+			b.WriteString(helpBar)
 			return b.String()
 		}
 
-		b.WriteString("USB Devices:\n\n")
+		b.WriteString(textStyle.Render("USB Devices:") + "\n\n")
 		b.WriteString(m.devList.View())
 		b.WriteString("\n\n" + helpBar)
 		return b.String()
