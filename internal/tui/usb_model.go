@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Nightails/Leafy/internal/usb"
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -23,6 +24,7 @@ const (
 type USBModel struct {
 	devices       []usb.BlockDevice
 	spinner       spinner.Model
+	devList       list.Model
 	scanning      bool
 	scanStartedAt time.Time
 	quitting      bool
@@ -33,10 +35,31 @@ func NewUSBModel() USBModel {
 	s := spinner.New()
 	s.Spinner = spinner.Line
 	s.Style = spinnerStyle
+
+	// the list can show only 4 items at a time, pagination is enabled
+	l := list.New([]list.Item{}, usbItemDelegate{}, 0, 4)
+	l.SetShowTitle(false)
+	l.SetShowHelp(false)
+	l.SetShowStatusBar(false)
+	l.SetShowPagination(true)
+	l.DisableQuitKeybindings()
+	l.SetFilteringEnabled(false)
+
 	return USBModel{
 		spinner:  s,
+		devList:  l,
 		scanning: true,
 	}
+}
+
+func clamp(n, lo, hi int) int {
+	if n < lo {
+		return lo
+	}
+	if n > hi {
+		return hi
+	}
+	return n
 }
 
 func scanUSBDevicesCmd() tea.Cmd {
@@ -69,6 +92,9 @@ func (m USBModel) Init() tea.Cmd {
 
 func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.devList.SetWidth(msg.Width)
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
@@ -88,6 +114,11 @@ func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				scanUSBDevicesCmd(), // start scanning
 			)
 		default:
+			if !m.scanning && !m.quitting && m.err == nil {
+				var cmd tea.Cmd
+				m.devList, cmd = m.devList.Update(msg)
+				return m, cmd
+			}
 			return m, nil
 		}
 	case usbDevicesMsg:
@@ -97,6 +128,14 @@ func (m USBModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		// save results immediately, but keep "scanning" until minScanDuration has passed
 		m.devices = msg
+
+		// Convert devices to list items
+		items := make([]list.Item, 0, len(m.devices))
+		for _, d := range m.devices {
+			items = append(items, usbDeviceItem{dev: d})
+		}
+		m.devList.SetItems(items)
+
 		remaining := minScanDuration - time.Since(m.scanStartedAt)
 		return m, finishAfterCmd(remaining)
 	case errMsg:
@@ -138,18 +177,18 @@ func (m USBModel) View() string {
 	if m.scanning {
 		b.WriteString(fmt.Sprintf("%s Scanning USB devices...\n\n", m.spinner.View()))
 	} else {
-		b.WriteString("Scanning complete. Press 's' to scan again.\n\n")
+		b.WriteString("Scanning complete.\n\n")
 		if len(m.devices) == 0 {
 			b.WriteString("No USB devices found.\n")
 			return b.String()
 		}
 
-		for _, dev := range m.devices {
-			b.WriteString(fmt.Sprintf("%s %s\n", dev.Name, dev.Path))
-		}
+		b.WriteString("USB Devices:\n\n")
+		b.WriteString(m.devList.View())
+		b.WriteString("\n\n" + helpBar)
+		return b.String()
 	}
 
 	b.WriteString("\n\n" + helpBar)
-
 	return b.String()
 }
