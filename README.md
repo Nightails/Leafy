@@ -11,6 +11,9 @@ I started vlogging my motorcycle journey recently, and found files transferring 
 
 ## 🚀 Quickstart
 
+> [!NOTE]
+> **Leafy** currently only supports **Linux**.
+
 A binary will be released on GitHub later. Alternatively, you can install it using Go.
 
 ```bash
