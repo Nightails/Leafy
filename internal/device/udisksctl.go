@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	// matches: Mounted /dev/sda1 at /media/USER/LABLE
+	// matches: Mounted /dev/sda1 at /media/USER/LABLE.
 	reMounted = regexp.MustCompile(`^Mounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
-	// matches: Unmounted /dev/sda1 at /media/USER/LABLE
+	// matches: Unmounted /dev/sda1 at /media/USER/LABLE.
 	reUnmounted = regexp.MustCompile(`^Unmounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
 )
 
