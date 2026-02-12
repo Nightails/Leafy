@@ -1,4 +1,4 @@
-package usb
+package device
 
 import (
 	"encoding/json"

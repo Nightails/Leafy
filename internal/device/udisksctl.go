@@ -1,4 +1,4 @@
-package usb
+package device
 
 import (
 	"fmt"
@@ -13,7 +13,8 @@ var (
 	reUnmounted = regexp.MustCompile(`^Unmounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
 )
 
-func mountDevice(device string) (string, error) {
+// mountUdisks mounts the given device using udisksctl and returns the mountpoint.
+func mountUdisks(device string) (string, error) {
 	args := []string{"mount", "-b", device}
 	cmd := exec.Command("udisksctl", args...)
 	out, err := cmd.CombinedOutput()
@@ -24,7 +25,8 @@ func mountDevice(device string) (string, error) {
 	return m[1], nil
 }
 
-func unmountDevice(device string) error {
+// unmountUdisks unmounts the given device using udisksctl.
+func unmountUdisks(device string) error {
 	args := []string{"unmount", "-b", device}
 	cmd := exec.Command("udisksctl", args...)
 	_, err := cmd.CombinedOutput()
