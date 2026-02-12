@@ -22,7 +22,10 @@ func mountUdisks(device string) (string, error) {
 		return "", fmt.Errorf("%v: %s", err, string(out))
 	}
 	m := reMounted.FindStringSubmatch(string(out))
-	return m[1], nil
+	if len(m) < 3 {
+		return "", fmt.Errorf("unexpected udiskctl output: %s", string(out))
+	}
+	return m[2], nil
 }
 
 // unmountUdisks unmounts the given device using udisksctl.

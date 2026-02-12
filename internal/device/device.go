@@ -20,11 +20,15 @@ func FindUSBDevices() ([]USBDevice, error) {
 		if bd.Type == "disk" && bd.Tran == "usb" {
 			// filter out non-partitioned disks
 			if hasPartition(bd) {
+				mp := ""
+				if len(bd.Children[0].Mountpoints) > 0 {
+					mp = bd.Children[0].Mountpoints[0]
+				}
 				devs = append(devs, USBDevice{
-					bd.Name,
+					bd.Model,
 					bd.Children[0].Path,
 					bd.Children[0].Label,
-					bd.Children[0].Mountpoints[0],
+					mp,
 				})
 			}
 		}
