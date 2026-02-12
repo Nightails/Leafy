@@ -34,8 +34,9 @@ General usage instructions:
 
 - **Automatic Scanning**: The app starts scanning for USB devices immediately upon launch.
 - **Navigation**: Use `j`/`k` or arrow keys to move through the list of detected devices.
-- **Selection**: Press `enter` to select a device for further actions.
+- **Mounting**: Press `enter` to mount the selected device.
 - **Manual Scan**: Press `s` at any time to trigger a new scan of your USB ports.
+- **Continue**: Press `tab` to finish device selection and proceed (currently exits the app).
 - **Exiting**: Press `ctrl+c` to safely exit the application.
 
 ## 🤝 Contributing
@@ -43,7 +44,8 @@ General usage instructions:
 To set up Leafy for local development, ensure you have the following dependencies installed:
 
 -   **Go** (version 1.25 or later)
--   **lsblk**: The application relies on the `lsblk` command-line utility (usually pre-installed on most Linux distributions).
+-   **lsblk**: The application relies on the `lsblk` command-line utility for device detection.
+-   **udisksctl**: The application uses `udisksctl` for mounting and unmounting devices.
 
 ### Development Steps
 
