@@ -11,6 +11,7 @@ type errMsg error
 
 type usbDevicesMsg []device.USBDevice
 
+// scanUSBDevicesCmd returns a command that scans for USB devices and sends the results as a usbDevicesMsg
 func scanUSBDevicesCmd() tea.Cmd {
 	return func() tea.Msg {
 		devs, err := device.FindUSBDevices()
@@ -18,6 +19,19 @@ func scanUSBDevicesCmd() tea.Cmd {
 			return errMsg(err)
 		}
 		return usbDevicesMsg(devs)
+	}
+}
+
+type mountUSBDeviceMsg device.USBDevice
+
+// mountUSBDeviceCmd returns a command that mounts the given USB device and sends the updated device as a mountUSBDeviceMsg
+func mountUSBDeviceCmd(d device.USBDevice) tea.Cmd {
+	return func() tea.Msg {
+		md, err := device.MountDevice(d)
+		if err != nil {
+			return errMsg(err)
+		}
+		return mountUSBDeviceMsg(md)
 	}
 }
 

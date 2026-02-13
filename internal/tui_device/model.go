@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nightails/leafy/internal/device"
 	"github.com/nightails/leafy/internal/tui_style"
 )
 
@@ -21,17 +22,17 @@ const (
 )
 
 const (
-	scanDelay  = 2 * time.Second
-	mountDelay = 2 * time.Second
-	quitDelay  = 1 * time.Second
+	loadDelay = 2 * time.Second
+	quitDelay = 1 * time.Second
 )
 
 type DeviceModel struct {
-	deviceList   list.Model
-	scanDuration tui_style.MinDuration
-	spinner      spinner.Model // loading spinner
-	state        state
-	err          error
+	selectedIndex int
+	deviceList    list.Model
+	timer         tui_style.MinDuration
+	spinner       spinner.Model // loading spinner
+	state         state
+	err           error
 }
 
 func NewDeviceModel() DeviceModel {
@@ -49,15 +50,15 @@ func NewDeviceModel() DeviceModel {
 	l.DisableQuitKeybindings()
 
 	// start timer for the first scan
-	t := tui_style.MinDuration{Min: scanDelay}
+	t := tui_style.MinDuration{Min: loadDelay}
 	t.StartNow()
 
 	return DeviceModel{
-		deviceList:   l,
-		scanDuration: t,
-		spinner:      s,
-		state:        scan,
-		err:          nil,
+		deviceList: l,
+		timer:      t,
+		spinner:    s,
+		state:      scan,
+		err:        nil,
 	}
 }
 
@@ -103,10 +104,23 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.err = nil
 			m.state = scan
-			m.scanDuration.StartNow()
+			m.timer.StartNow()
 			return m, tea.Batch(
 				m.spinner.Tick,      // restart the spinner
 				scanUSBDevicesCmd(), // start scanning
+			)
+		case "enter", "return":
+			if m.state == quit {
+				return m, nil
+			}
+			d := m.deviceList.SelectedItem().(deviceItem).usb
+			m.selectedIndex = m.deviceList.Index()
+			m.err = nil
+			m.state = mount
+			m.timer.StartNow()
+			return m, tea.Batch(
+				m.spinner.Tick,       // restart the spinner
+				mountUSBDeviceCmd(d), // start mounting
 			)
 		}
 	case usbDevicesMsg:
@@ -115,7 +129,12 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			items = append(items, deviceItem{d})
 		}
 		m.deviceList.SetItems(items)
-		return m, afterCmd(m.scanDuration.Remaining(), finishedMsg{})
+		return m, afterCmd(m.timer.Remaining(), finishedMsg{})
+	case mountUSBDeviceMsg:
+		m.deviceList.SetItem(m.selectedIndex, deviceItem{usb: device.USBDevice(msg)})
+		m.err = nil
+		m.state = idle
+		return m, afterCmd(m.timer.Remaining(), finishedMsg{})
 	case finishedMsg:
 		m.state = idle
 		return m, nil
