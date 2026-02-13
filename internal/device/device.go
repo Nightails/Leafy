@@ -69,3 +69,13 @@ func UnmountDevice(d USBDevice) (USBDevice, error) {
 	d.Mountpoint = ""
 	return d, nil
 }
+
+// PowerOffDevice powers off the given USB device using udisksctl.
+func PowerOffDevice(d USBDevice) error {
+	if d.Mountpoint != "" {
+		if err := unmountUdisks(d.Path); err != nil {
+			return err
+		}
+	}
+	return powerOffUdisks(d.Path)
+}
