@@ -27,7 +27,7 @@ const (
 )
 
 type DeviceModel struct {
-	selectedIndex int
+	mountingIndex int
 	deviceList    list.Model
 	timer         tui_style.MinDuration
 	spinner       spinner.Model // loading spinner
@@ -39,7 +39,7 @@ func NewDeviceModel() DeviceModel {
 	s := tui_style.NewLineSpinner()
 
 	// the list can only show 4 items at a time, pagination is enabled
-	l := list.New([]list.Item{}, deviceItemDelegate{}, 0, 6)
+	l := list.New([]list.Item{}, deviceItemDelegate{}, 0, 8)
 	l.Title = "Devices:"
 	l.SetShowTitle(true)
 	l.Styles.Title = tui_style.ItemTitleStyle
@@ -54,11 +54,12 @@ func NewDeviceModel() DeviceModel {
 	t.StartNow()
 
 	return DeviceModel{
-		deviceList: l,
-		timer:      t,
-		spinner:    s,
-		state:      scan,
-		err:        nil,
+		mountingIndex: -1,
+		deviceList:    l,
+		timer:         t,
+		spinner:       s,
+		state:         scan,
+		err:           nil,
 	}
 }
 
@@ -76,6 +77,15 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if (m.state == scan || m.state == mount) && m.err == nil {
 			var cmd tea.Cmd
 			m.spinner, cmd = m.spinner.Update(msg)
+
+			if m.state == mount && m.mountingIndex >= 0 && m.mountingIndex < len(m.deviceList.Items()) {
+				if it, ok := m.deviceList.Items()[m.mountingIndex].(deviceItem); ok {
+					it.spinnerFrame = m.spinner.View()
+					it.mounting = true
+					_ = m.deviceList.SetItem(m.mountingIndex, it)
+				}
+			}
+
 			return m, cmd
 		}
 		return m, nil
@@ -113,11 +123,18 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.state == quit {
 				return m, nil
 			}
-			d := m.deviceList.SelectedItem().(deviceItem).usb
-			m.selectedIndex = m.deviceList.Index()
 			m.err = nil
 			m.state = mount
 			m.timer.StartNow()
+
+			d := m.deviceList.SelectedItem().(deviceItem).usb
+			m.mountingIndex = m.deviceList.Index()
+			if m.mountingIndex >= 0 && m.mountingIndex < len(m.deviceList.Items()) {
+				it := m.deviceList.Items()[m.mountingIndex].(deviceItem)
+				it.mounting = true
+				it.spinnerFrame = m.spinner.View()
+				_ = m.deviceList.SetItem(m.mountingIndex, it)
+			}
 			return m, tea.Batch(
 				m.spinner.Tick,       // restart the spinner
 				mountUSBDeviceCmd(d), // start mounting
@@ -126,16 +143,30 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case usbDevicesMsg:
 		items := make([]list.Item, 0, len(msg))
 		for _, d := range msg {
-			items = append(items, deviceItem{d})
+			items = append(items, deviceItem{
+				usb:          d,
+				mounting:     false,
+				spinnerFrame: "",
+			})
 		}
 		m.deviceList.SetItems(items)
 		return m, afterCmd(m.timer.Remaining(), finishedMsg{})
 	case mountUSBDeviceMsg:
-		m.deviceList.SetItem(m.selectedIndex, deviceItem{usb: device.USBDevice(msg)})
+		m.deviceList.SetItem(m.mountingIndex, deviceItem{
+			usb:          device.USBDevice(msg),
+			mounting:     true,
+			spinnerFrame: m.spinner.View(),
+		})
 		m.err = nil
-		m.state = idle
 		return m, afterCmd(m.timer.Remaining(), finishedMsg{})
 	case finishedMsg:
+		if m.mountingIndex >= 0 && m.mountingIndex < len(m.deviceList.Items()) {
+			if it, ok := m.deviceList.Items()[m.mountingIndex].(deviceItem); ok {
+				it.mounting = false
+				_ = m.deviceList.SetItem(m.mountingIndex, it)
+			}
+		}
+		m.mountingIndex = -1
 		m.state = idle
 		return m, nil
 	case quitNowMsg:

@@ -12,7 +12,9 @@ import (
 )
 
 type deviceItem struct {
-	usb device.USBDevice
+	usb          device.USBDevice
+	mounting     bool
+	spinnerFrame string
 }
 
 func (i deviceItem) Title() string {
@@ -20,6 +22,12 @@ func (i deviceItem) Title() string {
 }
 
 func (i deviceItem) Description() string {
+	if i.mounting {
+		return i.spinnerFrame + style.ItemTextStyle.Render("Mounting...")
+	}
+	if i.usb.Mountpoint == "" {
+		return "Not mounted"
+	}
 	return "↳" + i.usb.Mountpoint
 }
 
@@ -30,7 +38,7 @@ func (i deviceItem) FilterValue() string {
 type deviceItemDelegate struct{}
 
 func (d deviceItemDelegate) Height() int {
-	return 1
+	return 2
 }
 
 func (d deviceItemDelegate) Spacing() int {
@@ -61,9 +69,5 @@ func (d deviceItemDelegate) Render(w io.Writer, m list.Model, index int, item li
 		}
 	}
 
-	if i.usb.Mountpoint == "" {
-		_, _ = fmt.Fprintf(w, "%s\n", fnTitle(i.Title()))
-	} else {
-		_, _ = fmt.Fprintf(w, "%s\n%s\n", fnTitle(i.Title()), fnDescription(i.Description()))
-	}
+	_, _ = fmt.Fprintf(w, "%s\n%s\n", fnTitle(i.Title()), fnDescription(i.Description()))
 }
