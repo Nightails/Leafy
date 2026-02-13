@@ -36,7 +36,7 @@ General usage instructions:
 - **Navigation**: Use `j`/`k` or arrow keys to move through the list of detected devices.
 - **Mounting**: Press `enter` to mount the selected device.
 - **Manual Scan**: Press `s` at any time to trigger a new scan of your USB ports.
-- **Continue**: Press `tab` to finish device selection and proceed (currently exits the app).
+- **Continue**: Press `tab` to finish device selection and proceed to media selection.
 - **Exiting**: Press `ctrl+c` to safely exit the application.
 
 ## 🤝 Contributing
