@@ -35,3 +35,11 @@ func unmountUdisks(device string) error {
 	_, err := cmd.CombinedOutput()
 	return err
 }
+
+// powerOffUdisks safely powers off the given device using udisksctl.
+func powerOffUdisks(device string) error {
+	args := []string{"power-off", "-b", device}
+	cmd := exec.Command("udisksctl", args...)
+	_, err := cmd.CombinedOutput()
+	return err
+}
