@@ -18,7 +18,7 @@ A binary will be released on GitHub later. Alternatively, you can install it usi
 
 ```bash
 # Option 1: Install with Go
-go install github.com/Nightails/Leafy@latest
+go install github.com/nightails/leafy@latest
 
 # Option 2: Download the binary
 # 1. Download: Download the latest binary from the Releases page.
@@ -51,7 +51,7 @@ To set up Leafy for local development, ensure you have the following dependencie
 
 ```bash
 # 1. Clone the repository:
-git clone https://github.com/user/leafy.git
+git clone https://github.com/nightails/leafy.git
 cd leafy
 
 # 2. Install dependencies:
