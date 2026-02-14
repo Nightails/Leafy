@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nightails/leafy/internal/device"
-	"github.com/nightails/leafy/internal/tui_media"
 	"github.com/nightails/leafy/internal/tui_style"
 )
 
@@ -140,9 +139,6 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.spinner.Tick,       // restart the spinner
 				mountUSBDeviceCmd(d), // start mounting
 			)
-		case "tab":
-			nm := tui_media.NewMediaModel()
-			return nm, nil
 		}
 	case usbDevicesMsg:
 		items := make([]list.Item, 0, len(msg))
