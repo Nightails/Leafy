@@ -2,8 +2,6 @@ package tui_app
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/tui_device"
-	"github.com/nightails/leafy/internal/tui_media"
 )
 
 type tabID int
@@ -14,17 +12,17 @@ const (
 )
 
 type AppModel struct {
+	state  AppState
 	active tabID
 	tabs   []tea.Model
 	inited map[tabID]bool
 }
 
-func NewAppModel() AppModel {
-	dev := tui_device.NewDeviceModel()
-	media := tui_media.NewMediaModel()
+func NewAppModel(tabs []tea.Model) AppModel {
 	return AppModel{
+		state:  AppState{},
 		active: tabDevice,
-		tabs:   []tea.Model{dev, media},
+		tabs:   tabs,
 		inited: map[tabID]bool{},
 	}
 }
@@ -35,16 +33,8 @@ func (m AppModel) Init() tea.Cmd {
 }
 
 func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if km, ok := msg.(tea.KeyMsg); ok {
-		switch km.String() {
-		case "tab":
-			return m.switchTo(tabID((int(m.active) + 1) % len(m.tabs)))
-		case "shift+tab":
-			return m.switchTo(tabID((int(m.active) - 1 + len(m.tabs)) % len(m.tabs)))
-		}
-	}
-
-	if _, ok := msg.(tea.WindowSizeMsg); ok {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
 		var cmds []tea.Cmd
 		for i := range m.tabs {
 			var cmd tea.Cmd
@@ -54,6 +44,19 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		return m, tea.Batch(cmds...)
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "tab":
+			return m.switchTo(tabID((int(m.active) + 1) % len(m.tabs)))
+		case "shift+tab":
+			return m.switchTo(tabID((int(m.active) - 1 + len(m.tabs)) % len(m.tabs)))
+		}
+	case DeviceMountedMsg:
+		m.state.MountPoints = append(m.state.MountPoints, msg.MountPoint)
+		return m.broadcastState()
+	case FileSelectedMsg:
+		m.state.FilesToTransfer = append(m.state.FilesToTransfer, msg.Path)
+		return m.broadcastState()
 	}
 
 	var cmd tea.Cmd
@@ -72,4 +75,18 @@ func (m AppModel) switchTo(id tabID) (tea.Model, tea.Cmd) {
 	}
 	m.inited[id] = true
 	return m, m.tabs[id].Init()
+}
+
+func (m AppModel) broadcastState() (tea.Model, tea.Cmd) {
+	msg := AppStateMsg{m.state}
+
+	var cmds []tea.Cmd
+	for i := range m.tabs {
+		var cmd tea.Cmd
+		m.tabs[i], cmd = m.tabs[i].Update(msg)
+		if cmd != nil {
+			cmds = append(cmds, cmd)
+		}
+	}
+	return m, tea.Batch(cmds...)
 }

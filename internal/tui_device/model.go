@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nightails/leafy/internal/device"
+	"github.com/nightails/leafy/internal/tui_app"
 	"github.com/nightails/leafy/internal/tui_style"
 )
 
@@ -158,7 +159,10 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			spinnerFrame: m.spinner.View(),
 		})
 		m.err = nil
-		return m, afterCmd(m.timer.Remaining(), finishedMsg{})
+		return m, tea.Batch(
+			func() tea.Msg { return tui_app.DeviceMountedMsg{MountPoint: msg.Mountpoint} },
+			afterCmd(m.timer.Remaining(), finishedMsg{}),
+		)
 	case finishedMsg:
 		if m.mountingIndex >= 0 && m.mountingIndex < len(m.deviceList.Items()) {
 			if it, ok := m.deviceList.Items()[m.mountingIndex].(deviceItem); ok {
