@@ -9,8 +9,8 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nightails/leafy/internal/device"
-	"github.com/nightails/leafy/internal/tui_app"
-	"github.com/nightails/leafy/internal/tui_style"
+	app "github.com/nightails/leafy/internal/tui_app"
+	style "github.com/nightails/leafy/internal/tui_style"
 )
 
 type state int
@@ -30,20 +30,18 @@ const (
 type DeviceModel struct {
 	mountingIndex int
 	deviceList    list.Model
-	timer         tui_style.MinDuration
+	timer         style.MinDuration
 	spinner       spinner.Model // loading spinner
 	state         state
 	err           error
 }
 
 func NewDeviceModel() DeviceModel {
-	s := tui_style.NewLineSpinner()
+	s := style.NewLineSpinner()
 
 	// the list can only show 4 items at a time, pagination is enabled
-	l := list.New([]list.Item{}, deviceItemDelegate{}, 0, 8)
-	l.Title = "Devices:"
-	l.SetShowTitle(true)
-	l.Styles.Title = tui_style.ItemTitleStyle
+	l := list.New([]list.Item{}, deviceItemDelegate{}, 0, 10)
+	l.SetShowTitle(false)
 	l.SetShowPagination(true)
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
@@ -51,7 +49,7 @@ func NewDeviceModel() DeviceModel {
 	l.DisableQuitKeybindings()
 
 	// start timer for the first scan
-	t := tui_style.MinDuration{Min: loadDelay}
+	t := style.MinDuration{Min: loadDelay}
 	t.StartNow()
 
 	return DeviceModel{
@@ -108,7 +106,7 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case "ctrl+c":
 			m.state = quit
-			return m, afterCmd(quitDelay, quitNowMsg{})
+			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
 		case "s":
 			if m.state == quit {
 				return m, nil
@@ -151,7 +149,7 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 		}
 		m.deviceList.SetItems(items)
-		return m, afterCmd(m.timer.Remaining(), finishedMsg{})
+		return m, app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{})
 	case mountUSBDeviceMsg:
 		m.deviceList.SetItem(m.mountingIndex, deviceItem{
 			usb:          device.USBDevice(msg),
@@ -160,10 +158,10 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 		m.err = nil
 		return m, tea.Batch(
-			func() tea.Msg { return tui_app.DeviceMountedMsg{MountPoint: msg.Mountpoint} },
-			afterCmd(m.timer.Remaining(), finishedMsg{}),
+			func() tea.Msg { return app.DeviceMountedMsg{MountPoint: msg.Mountpoint} },
+			app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{}),
 		)
-	case finishedMsg:
+	case app.FinishedMsg:
 		if m.mountingIndex >= 0 && m.mountingIndex < len(m.deviceList.Items()) {
 			if it, ok := m.deviceList.Items()[m.mountingIndex].(deviceItem); ok {
 				it.mounting = false
@@ -173,29 +171,29 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.mountingIndex = -1
 		m.state = idle
 		return m, nil
-	case quitNowMsg:
+	case app.QuitNowMsg:
 		return m, tea.Quit
 	}
 }
 
 func (m DeviceModel) View() string {
 	if m.state == quit {
-		return "\n" + tui_style.TextStyle.Render("Quitting leafy...")
+		return "\n" + style.TextStyle.Render("Quitting leafy...")
 	}
 	if m.err != nil {
-		return tui_style.TextStyle.Render(m.err.Error())
+		return style.TextStyle.Render(m.err.Error())
 	}
 
 	var b strings.Builder
 
 	if m.state == scan {
-		b.WriteString(fmt.Sprintf("\n%s%s\n\n", m.spinner.View(), tui_style.TextStyle.Render("Scanning for USB devices...")))
+		b.WriteString(fmt.Sprintf("\n%s%s\n\n", m.spinner.View(), style.TextStyle.Render("Scanning for USB devices...")))
 		b.WriteString("\n\n" + helpBarView())
 		return b.String()
 	}
 
 	if len(m.deviceList.Items()) == 0 {
-		b.WriteString("\n" + tui_style.TextStyle.Render("No USB devices found."))
+		b.WriteString("\n" + style.TextStyle.Render("No USB devices found."))
 		b.WriteString("\n\n" + helpBarView())
 		return b.String()
 	}
