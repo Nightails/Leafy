@@ -4,6 +4,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type AppState struct {
+	MountPoints     []string
+	FilesToTransfer []string
+}
+
 type tabID int
 
 const (

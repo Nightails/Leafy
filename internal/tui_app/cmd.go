@@ -6,6 +6,16 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type AppStateMsg struct {
+	State AppState
+}
+type DeviceMountedMsg struct {
+	MountPoint string
+}
+type FileSelectedMsg struct {
+	Path string
+}
+
 type ErrMsg error
 type FinishedMsg struct{}
 type QuitNowMsg struct{}
