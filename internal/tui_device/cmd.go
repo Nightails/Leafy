@@ -3,9 +3,8 @@ package tui_device
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nightails/leafy/internal/device"
+	app "github.com/nightails/leafy/internal/tui_app"
 )
-
-type errMsg error
 
 type usbDevicesMsg []device.USBDevice
 
@@ -14,7 +13,7 @@ func scanUSBDevicesCmd() tea.Cmd {
 	return func() tea.Msg {
 		devs, err := device.FindUSBDevices()
 		if err != nil {
-			return errMsg(err)
+			return app.ErrMsg(err)
 		}
 		return usbDevicesMsg(devs)
 	}
@@ -27,7 +26,7 @@ func mountUSBDeviceCmd(d device.USBDevice) tea.Cmd {
 	return func() tea.Msg {
 		md, err := device.MountDevice(d)
 		if err != nil {
-			return errMsg(err)
+			return app.ErrMsg(err)
 		}
 		return mountUSBDeviceMsg(md)
 	}

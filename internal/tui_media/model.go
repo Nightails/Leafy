@@ -55,12 +55,20 @@ func NewMediaModel() MediaModel {
 }
 
 func (m MediaModel) Init() tea.Cmd {
-	return nil // TODO: scan for media on init if mount points are available
+	return tea.Batch(
+		m.spinner.Tick,              // start scanning spinner
+		scanMediaCmd(m.mountPoints), // start scanning for media files
+	)
 }
 
 func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	default:
+		if (m.state == scan || m.state == transfer) && m.err == nil {
+			var cmd tea.Cmd
+			m.spinner, cmd = m.spinner.Update(msg)
+			return m, cmd
+		}
 		return m, nil
 	case app.ErrMsg:
 		m.err = msg
@@ -74,14 +82,20 @@ func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			return m, nil
 		case "ctrl+c":
+			m.state = quit
 			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
 		}
 	// handle app messages
 	case app.AppStateMsg:
 		m.mountPoints = msg.State.MountPoints
 		return m, nil
+	case mediaMsg:
+		// 	TODO: handle and store media files to the list
+		return m, app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{})
+	case app.FinishedMsg:
+		m.state = idle
+		return m, nil
 	case app.QuitNowMsg:
-		m.state = quit
 		return m, tea.Quit
 	}
 }

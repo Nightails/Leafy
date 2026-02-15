@@ -88,7 +88,7 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 		return m, nil
-	case errMsg:
+	case app.ErrMsg:
 		m.err = msg
 		return m, nil
 	case tea.WindowSizeMsg:
