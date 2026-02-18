@@ -80,6 +80,11 @@ func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		default:
+			if m.state == idle && m.err == nil {
+				var cmd tea.Cmd
+				m.mediaList, cmd = m.mediaList.Update(msg)
+				return m, cmd
+			}
 			return m, nil
 		case "ctrl+c":
 			m.state = quit
