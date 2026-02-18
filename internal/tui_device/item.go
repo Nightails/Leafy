@@ -50,7 +50,7 @@ func (d deviceItemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd {
 }
 
 func (d deviceItemDelegate) Render(w io.Writer, m list.Model, index int, item list.Item) {
-	i, ok := item.(deviceItem)
+	var i, ok = item.(deviceItem)
 	if !ok {
 		return
 	}

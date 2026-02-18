@@ -34,7 +34,7 @@ type MediaModel struct {
 func NewMediaModel() MediaModel {
 	s := style.NewLineSpinner()
 
-	l := list.New([]list.Item{}, list.DefaultDelegate{}, 0, 10)
+	l := list.New([]list.Item{}, mediaItemDelegate{}, 0, 10)
 	l.SetShowTitle(false)
 	l.SetShowPagination(true)
 	l.SetShowStatusBar(true)
@@ -90,7 +90,16 @@ func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.mountPoints = msg.State.MountPoints
 		return m, nil
 	case mediaMsg:
-		// 	TODO: handle and store media files to the list
+		var media []list.Item
+		for _, m := range msg {
+			media = append(media, mediaItem{
+				srcPath:      m,
+				destPath:     "",
+				transferring: false,
+				spinnerFrame: "",
+			})
+		}
+		m.mediaList.SetItems(media)
 		return m, app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{})
 	case app.FinishedMsg:
 		m.state = idle
