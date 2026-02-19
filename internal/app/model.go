@@ -55,10 +55,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "tab":
-			return m.switchTo(tabID((int(m.active) + 1) % len(m.tabs)))
-		case "shift+tab":
-			return m.switchTo(tabID((int(m.active) - 1 + len(m.tabs)) % len(m.tabs)))
+		case "enter", "return":
+			i := int(m.active) + 1
+			if i >= len(m.tabs) {
+				i = len(m.tabs) - 1
+			}
+			return m.switchTo(tabID(i))
+		case "backspace":
+			i := int(m.active) - 1
+			if i < 0 {
+				i = 0
+			}
+			return m.switchTo(tabID(i))
 		}
 	case DeviceMountedMsg:
 		m.state.MountPoints = append(m.state.MountPoints, msg.MountPoint)

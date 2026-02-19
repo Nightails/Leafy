@@ -10,6 +10,7 @@ var controls = []string{
 	"[↑/k] up",
 	"[↓/j] down",
 	"[space] mount/unmount",
+	"[backspace] return",
 	"[enter] continue",
 	"[s] re-scan",
 	"[q] quit",
