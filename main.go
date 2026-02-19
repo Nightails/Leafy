@@ -4,19 +4,18 @@ import (
 	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/tui_app"
-	"github.com/nightails/leafy/internal/tui_device"
-	"github.com/nightails/leafy/internal/tui_media"
+	"github.com/nightails/leafy/internal/app"
+	"github.com/nightails/leafy/internal/device"
+	"github.com/nightails/leafy/internal/media"
 )
 
 func main() {
 	// Initialize tabs
-	var tabs []tea.Model
-	deviceTab := tui_device.NewDeviceModel()
-	mediaTab := tui_media.NewMediaModel()
-	tabs = append(tabs, deviceTab, mediaTab)
+	deviceTab := device.NewModel()
+	mediaTab := media.NewModel()
 
-	m := tui_app.NewAppModel(tabs)
+	// Start the TUI app
+	m := app.NewAppModel([]tea.Model{deviceTab, mediaTab})
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		log.Panicf("Program exited with error: %v", err)
