@@ -1,9 +1,9 @@
-package tui_device
+package device
 
 import (
 	"strings"
 
-	style "github.com/nightails/leafy/internal/tui_style"
+	style "github.com/nightails/leafy/internal/style"
 )
 
 var controls = []string{

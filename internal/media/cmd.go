@@ -1,9 +1,8 @@
-package tui_media
+package media
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/media"
-	app "github.com/nightails/leafy/internal/tui_app"
+	app "github.com/nightails/leafy/internal/app"
 )
 
 type mediaMsg []string
@@ -13,7 +12,7 @@ func scanMediaCmd(paths []string) tea.Cmd {
 		if len(paths) == 0 {
 			return mediaMsg{}
 		}
-		m, err := media.GetMediaFiles(paths)
+		m, err := GetMediaFiles(paths)
 		if err != nil {
 			return app.ErrMsg(err)
 		}

@@ -37,7 +37,7 @@ func FindUSBDevices() ([]USBDevice, error) {
 	return devs, nil
 }
 
-func hasPartition(bd BlockDevice) bool {
+func hasPartition(bd blockDevice) bool {
 	return bd.Children != nil && len(bd.Children) > 0
 }
 

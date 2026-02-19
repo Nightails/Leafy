@@ -1,10 +1,14 @@
-package tui_app
+package app
 
 import (
+	"fmt"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nightails/leafy/internal/style"
 )
 
-type AppState struct {
+type State struct {
 	MountPoints     []string
 	FilesToTransfer []string
 }
@@ -16,28 +20,28 @@ const (
 	tabMedia
 )
 
-type AppModel struct {
-	state  AppState
+type Model struct {
+	state  State
 	active tabID
 	tabs   []tea.Model
 	inited map[tabID]bool
 }
 
-func NewAppModel(tabs []tea.Model) AppModel {
-	return AppModel{
-		state:  AppState{},
+func NewAppModel(tabs []tea.Model) Model {
+	return Model{
+		state:  State{},
 		active: tabDevice,
 		tabs:   tabs,
 		inited: map[tabID]bool{},
 	}
 }
 
-func (m AppModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	m.inited[m.active] = true
 	return m.tabs[m.active].Init()
 }
 
-func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		var cmds []tea.Cmd
@@ -69,11 +73,26 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m AppModel) View() string {
-	return m.tabs[m.active].View()
+func (m Model) View() string {
+	var b strings.Builder
+
+	dTab := style.TabTextStyle.Render("Device")
+	mTab := style.TabTextStyle.Render("Media")
+
+	switch m.active {
+	case tabDevice:
+		dTab = style.TabSelectedStyle.Render("Device")
+	case tabMedia:
+		mTab = style.TabSelectedStyle.Render("Media")
+	}
+
+	b.WriteString(fmt.Sprintf(" %s | %s\n", dTab, mTab))
+	b.WriteString(m.tabs[m.active].View())
+
+	return b.String()
 }
 
-func (m AppModel) switchTo(id tabID) (tea.Model, tea.Cmd) {
+func (m Model) switchTo(id tabID) (tea.Model, tea.Cmd) {
 	m.active = id
 	if m.inited[id] {
 		return m, nil
@@ -82,8 +101,8 @@ func (m AppModel) switchTo(id tabID) (tea.Model, tea.Cmd) {
 	return m, m.tabs[id].Init()
 }
 
-func (m AppModel) broadcastState() (tea.Model, tea.Cmd) {
-	msg := AppStateMsg{m.state}
+func (m Model) broadcastState() (tea.Model, tea.Cmd) {
+	msg := StateMsg{m.state}
 
 	var cmds []tea.Cmd
 	for i := range m.tabs {

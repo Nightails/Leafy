@@ -1,4 +1,4 @@
-package tui_device
+package device
 
 import (
 	"fmt"
@@ -8,9 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/device"
-	app "github.com/nightails/leafy/internal/tui_app"
-	style "github.com/nightails/leafy/internal/tui_style"
+	app "github.com/nightails/leafy/internal/app"
+	style "github.com/nightails/leafy/internal/style"
 )
 
 type state int
@@ -27,7 +26,7 @@ const (
 	quitDelay = 1 * time.Second
 )
 
-type DeviceModel struct {
+type Model struct {
 	mountingIndex int
 	deviceList    list.Model
 	timer         style.MinDuration
@@ -36,7 +35,7 @@ type DeviceModel struct {
 	err           error
 }
 
-func NewDeviceModel() DeviceModel {
+func NewModel() Model {
 	s := style.NewLineSpinner()
 
 	// the list can only show 4 items at a time, pagination is enabled
@@ -52,7 +51,7 @@ func NewDeviceModel() DeviceModel {
 	t := style.MinDuration{Min: loadDelay}
 	t.StartNow()
 
-	return DeviceModel{
+	return Model{
 		mountingIndex: -1,
 		deviceList:    l,
 		timer:         t,
@@ -62,14 +61,14 @@ func NewDeviceModel() DeviceModel {
 	}
 }
 
-func (m DeviceModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.spinner.Tick,      // start scanning spinner
 		scanUSBDevicesCmd(), // start scanning for USB devices immediately
 	)
 }
 
-func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	default:
 		// keep the spinner running while scanning or mounting
@@ -152,7 +151,7 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{})
 	case mountUSBDeviceMsg:
 		m.deviceList.SetItem(m.mountingIndex, deviceItem{
-			usb:          device.USBDevice(msg),
+			usb:          USBDevice(msg),
 			mounting:     true,
 			spinnerFrame: m.spinner.View(),
 		})
@@ -176,7 +175,7 @@ func (m DeviceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m DeviceModel) View() string {
+func (m Model) View() string {
 	if m.state == quit {
 		return "\n" + style.TextStyle.Render("Quitting leafy...")
 	}

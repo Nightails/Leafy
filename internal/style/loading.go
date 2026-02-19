@@ -1,4 +1,4 @@
-package tui_style
+package style
 
 import (
 	"time"

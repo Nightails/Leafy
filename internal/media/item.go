@@ -1,4 +1,4 @@
-package tui_media
+package media
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	style "github.com/nightails/leafy/internal/tui_style"
+	style "github.com/nightails/leafy/internal/style"
 )
 
 type mediaItem struct {

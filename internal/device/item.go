@@ -1,4 +1,4 @@
-package tui_device
+package device
 
 import (
 	"fmt"
@@ -7,12 +7,11 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/device"
-	style "github.com/nightails/leafy/internal/tui_style"
+	style "github.com/nightails/leafy/internal/style"
 )
 
 type deviceItem struct {
-	usb          device.USBDevice
+	usb          USBDevice
 	mounting     bool
 	spinnerFrame string
 }

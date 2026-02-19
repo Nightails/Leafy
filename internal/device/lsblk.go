@@ -5,10 +5,10 @@ import (
 	"os/exec"
 )
 
-type LSBLK struct {
-	BlockDevices []BlockDevice `json:"blockdevices"`
+type lsblk struct {
+	BlockDevices []blockDevice `json:"blockdevices"`
 }
-type BlockDevice struct {
+type blockDevice struct {
 	Name        string        `json:"name"`
 	Path        string        `json:"path"`
 	Label       string        `json:"label"`
@@ -16,10 +16,10 @@ type BlockDevice struct {
 	Type        string        `json:"type"`
 	Model       string        `json:"model"`
 	Mountpoints []string      `json:"mountpoints"`
-	Children    []BlockDevice `json:"children"`
+	Children    []blockDevice `json:"children"`
 }
 
-func readLSBLK() (LSBLK, error) {
+func readLSBLK() (lsblk, error) {
 	args := []string{
 		"-J",
 		"--tree",
@@ -29,12 +29,12 @@ func readLSBLK() (LSBLK, error) {
 	cmd := exec.Command("lsblk", args...)
 	raw, err := cmd.Output()
 	if err != nil {
-		return LSBLK{}, err
+		return lsblk{}, err
 	}
 
-	var blk LSBLK
+	var blk lsblk
 	if err := json.Unmarshal(raw, &blk); err != nil {
-		return LSBLK{}, err
+		return lsblk{}, err
 	}
 	return blk, nil
 }

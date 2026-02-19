@@ -1,17 +1,16 @@
-package tui_device
+package device
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/device"
-	app "github.com/nightails/leafy/internal/tui_app"
+	app "github.com/nightails/leafy/internal/app"
 )
 
-type usbDevicesMsg []device.USBDevice
+type usbDevicesMsg []USBDevice
 
 // scanUSBDevicesCmd returns a command that scans for USB devices and sends the results as a usbDevicesMsg
 func scanUSBDevicesCmd() tea.Cmd {
 	return func() tea.Msg {
-		devs, err := device.FindUSBDevices()
+		devs, err := FindUSBDevices()
 		if err != nil {
 			return app.ErrMsg(err)
 		}
@@ -19,12 +18,12 @@ func scanUSBDevicesCmd() tea.Cmd {
 	}
 }
 
-type mountUSBDeviceMsg device.USBDevice
+type mountUSBDeviceMsg USBDevice
 
 // mountUSBDeviceCmd returns a command that mounts the given USB device and sends the updated device as a mountUSBDeviceMsg
-func mountUSBDeviceCmd(d device.USBDevice) tea.Cmd {
+func mountUSBDeviceCmd(d USBDevice) tea.Cmd {
 	return func() tea.Msg {
-		md, err := device.MountDevice(d)
+		md, err := MountDevice(d)
 		if err != nil {
 			return app.ErrMsg(err)
 		}

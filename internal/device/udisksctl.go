@@ -6,21 +6,18 @@ import (
 	"regexp"
 )
 
-var (
-	// matches: Mounted /dev/sda1 at /media/USER/LABLE.
-	reMounted = regexp.MustCompile(`^Mounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
-	// matches: Unmounted /dev/sda1 at /media/USER/LABLE.
-	reUnmounted = regexp.MustCompile(`^Unmounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
-)
-
 // mountUdisks mounts the given device using udisksctl and returns the mountpoint.
 func mountUdisks(device string) (string, error) {
+	// matches: Mounted /dev/sda1 at /media/USER/LABLE.
+	var reMounted = regexp.MustCompile(`^Mounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
+
 	args := []string{"mount", "-b", device}
 	cmd := exec.Command("udisksctl", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("%v: %s", err, string(out))
 	}
+
 	m := reMounted.FindStringSubmatch(string(out))
 	if len(m) < 3 {
 		return "", fmt.Errorf("unexpected udiskctl output: %s", string(out))

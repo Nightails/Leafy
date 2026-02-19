@@ -1,4 +1,4 @@
-package tui_app
+package app
 
 import (
 	"time"
@@ -6,8 +6,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type AppStateMsg struct {
-	State AppState
+type StateMsg struct {
+	State State
 }
 type DeviceMountedMsg struct {
 	MountPoint string

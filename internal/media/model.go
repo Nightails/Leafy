@@ -1,4 +1,4 @@
-package tui_media
+package media
 
 import (
 	"strings"
@@ -7,8 +7,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	app "github.com/nightails/leafy/internal/tui_app"
-	style "github.com/nightails/leafy/internal/tui_style"
+	app "github.com/nightails/leafy/internal/app"
+	style "github.com/nightails/leafy/internal/style"
 )
 
 type state int
@@ -22,7 +22,7 @@ const (
 
 const quitDelay = 1 * time.Second
 
-type MediaModel struct {
+type Model struct {
 	state       state
 	mountPoints []string
 	mediaList   list.Model
@@ -31,7 +31,7 @@ type MediaModel struct {
 	err         error
 }
 
-func NewMediaModel() MediaModel {
+func NewModel() Model {
 	s := style.NewLineSpinner()
 
 	l := list.New([]list.Item{}, mediaItemDelegate{}, 0, 10)
@@ -45,7 +45,7 @@ func NewMediaModel() MediaModel {
 	t := style.MinDuration{Min: quitDelay}
 	t.StartNow()
 
-	return MediaModel{
+	return Model{
 		state:     scan, // the first scan on init
 		mediaList: l,
 		timer:     t,
@@ -54,14 +54,14 @@ func NewMediaModel() MediaModel {
 	}
 }
 
-func (m MediaModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.spinner.Tick,              // start scanning spinner
 		scanMediaCmd(m.mountPoints), // start scanning for media files
 	)
 }
 
-func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	default:
 		if (m.state == scan || m.state == transfer) && m.err == nil {
@@ -91,7 +91,7 @@ func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
 		}
 	// handle app messages
-	case app.AppStateMsg:
+	case app.StateMsg:
 		m.mountPoints = msg.State.MountPoints
 		return m, nil
 	case mediaMsg:
@@ -114,7 +114,7 @@ func (m MediaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m MediaModel) View() string {
+func (m Model) View() string {
 	if m.state == quit {
 		return "\n" + style.TextStyle.Render("Quitting leafy...")
 	}
