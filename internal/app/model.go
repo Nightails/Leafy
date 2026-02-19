@@ -56,16 +56,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter", "return":
-			i := int(m.active) + 1
-			if i >= len(m.tabs) {
-				i = len(m.tabs) - 1
-			}
+			i := min(int(m.active)+1, len(m.tabs)-1)
 			return m.switchTo(tabID(i))
 		case "backspace":
-			i := int(m.active) - 1
-			if i < 0 {
-				i = 0
-			}
+			i := max(0, int(m.active)-1)
 			return m.switchTo(tabID(i))
 		}
 	case DeviceMountedMsg:
