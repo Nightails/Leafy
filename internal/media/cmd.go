@@ -2,7 +2,7 @@ package media
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	app "github.com/nightails/leafy/internal/app"
+	"github.com/nightails/leafy/internal/app"
 )
 
 type mediaMsg []string

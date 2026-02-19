@@ -8,8 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	app "github.com/nightails/leafy/internal/app"
-	style "github.com/nightails/leafy/internal/style"
+	"github.com/nightails/leafy/internal/app"
+	"github.com/nightails/leafy/internal/style"
 )
 
 type state int
@@ -103,10 +103,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			}
 			return m, nil
-		case "q":
+		case "q": // q, quit
 			m.state = quit
 			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
-		case "s":
+		case "s": // s, scan again
 			if m.state == quit {
 				return m, nil
 			}
@@ -117,7 +117,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.spinner.Tick,      // restart the spinner
 				scanUSBDevicesCmd(), // start scanning
 			)
-		case "space":
+		case " ": // space bar, mount/unmount select device
 			if m.state == quit {
 				return m, nil
 			}
@@ -139,6 +139,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			)
 		}
 	case usbDevicesMsg:
+		var cmds []tea.Cmd
 		items := make([]list.Item, 0, len(msg))
 		for _, d := range msg {
 			items = append(items, deviceItem{
@@ -146,9 +147,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				mounting:     false,
 				spinnerFrame: "",
 			})
+			// already mounted device
+			if d.Mountpoint != "" {
+				cmds = append(cmds, func() tea.Msg { return app.DeviceMountedMsg{MountPoint: d.Mountpoint} })
+			}
 		}
 		m.deviceList.SetItems(items)
-		return m, app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{})
+		cmds = append(cmds, app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{}))
+		return m, tea.Batch(cmds...)
 	case mountUSBDeviceMsg:
 		m.deviceList.SetItem(m.mountingIndex, deviceItem{
 			usb:          USBDevice(msg),

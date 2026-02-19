@@ -3,7 +3,7 @@ package device
 import (
 	"strings"
 
-	style "github.com/nightails/leafy/internal/style"
+	"github.com/nightails/leafy/internal/style"
 )
 
 var controls = []string{

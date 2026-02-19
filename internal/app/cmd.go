@@ -12,6 +12,9 @@ type StateMsg struct {
 type DeviceMountedMsg struct {
 	MountPoint string
 }
+type DeviceUnmountedMsg struct {
+	MountPoint string
+}
 type FileSelectedMsg struct {
 	Path string
 }

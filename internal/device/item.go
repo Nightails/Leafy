@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	style "github.com/nightails/leafy/internal/style"
+	"github.com/nightails/leafy/internal/style"
 )
 
 type deviceItem struct {
