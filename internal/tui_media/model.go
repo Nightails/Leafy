@@ -46,7 +46,7 @@ func NewMediaModel() MediaModel {
 	t.StartNow()
 
 	return MediaModel{
-		state:     idle, // TODO: switch to scan for first scan on init
+		state:     scan, // the first scan on init
 		mediaList: l,
 		timer:     t,
 		spinner:   s,
