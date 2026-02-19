@@ -9,10 +9,10 @@ import (
 var controls = []string{
 	"[↑/k] up",
 	"[↓/j] down",
-	"[enter] mount",
-	"[tab] continue",
-	"[s] scan",
-	"[ctrl+c] quit",
+	"[space] mount/unmount",
+	"[enter] continue",
+	"[s] re-scan",
+	"[q] quit",
 }
 
 func helpBarView() string {

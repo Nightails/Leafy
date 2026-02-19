@@ -103,7 +103,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			}
 			return m, nil
-		case "ctrl+c":
+		case "q":
 			m.state = quit
 			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
 		case "s":
@@ -117,7 +117,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.spinner.Tick,      // restart the spinner
 				scanUSBDevicesCmd(), // start scanning
 			)
-		case "enter", "return":
+		case "space":
 			if m.state == quit {
 				return m, nil
 			}
