@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -66,11 +67,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state.MountPoints = append(m.state.MountPoints, msg.MountPoint)
 		return m.broadcastState()
 	case DeviceUnmountedMsg:
-		for i, mp := range m.state.MountPoints {
-			if mp == msg.MountPoint {
-				m.state.MountPoints = append(m.state.MountPoints[:i], m.state.MountPoints[i+1:]...)
-				break
-			}
+		if i := slices.Index(m.state.MountPoints, msg.MountPoint); i >= 0 {
+			m.state.MountPoints = slices.Delete(m.state.MountPoints, i, i+1)
 		}
 		return m.broadcastState()
 	case FileSelectedMsg:

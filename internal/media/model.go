@@ -89,9 +89,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			}
 			return m, nil
-		case "q":
+		case "q": // q, quit
 			m.state = quit
 			return m, app.AfterCmd(style.QuitDelay, app.QuitNowMsg{})
+		case "s": // s, scan again
+			if m.state == quit {
+				return m, nil
+			}
+			m.err = nil
+			m.state = scan
+			m.timer.StartNow()
+			return m, tea.Batch(
+				m.spinner.Tick, // restart the spinner
+				scanMediaCmd(m.mountPoints),
+			)
+		case " ": // space bar, add the selected file to the transfer queue
+			// TODO: add the selected file to the transfer queue
+			return m, nil
+		case "enter", "return": // enter, start transferring selected files
+			// TODO: start transferring selected files
+			return m, nil
 		}
 	// handle app messages
 	case app.StateMsg:
