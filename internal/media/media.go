@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Supported media file formats
 var (
 	audioFormats = []string{".mp3", ".wav", ".flac"}
 	videoFormats = []string{".mp4", ".avi", ".mkv"}
@@ -50,6 +51,7 @@ func GetMediaFiles(paths []string) ([]string, error) {
 	return mediaFiles, nil
 }
 
+// addMediaFile adds a media file path to the given list if it's a supported format and not already present.
 func addMediaFile(files []string, path string) []string {
 	if !isSupportedFormat(path) {
 		return files
@@ -61,6 +63,7 @@ func addMediaFile(files []string, path string) []string {
 	return files
 }
 
+// isSupportedFormat returns true if the given file path has a supported format.
 func isSupportedFormat(path string) bool {
 	for _, ext := range audioFormats {
 		if strings.HasSuffix(strings.ToLower(path), ext) {
