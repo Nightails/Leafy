@@ -65,6 +65,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case DeviceMountedMsg:
 		m.state.MountPoints = append(m.state.MountPoints, msg.MountPoint)
 		return m.broadcastState()
+	case DeviceUnmountedMsg:
+		for i, mp := range m.state.MountPoints {
+			if mp == msg.MountPoint {
+				m.state.MountPoints = append(m.state.MountPoints[:i], m.state.MountPoints[i+1:]...)
+				break
+			}
+		}
+		return m.broadcastState()
 	case FileSelectedMsg:
 		m.state.FilesToTransfer = append(m.state.FilesToTransfer, msg.Path)
 		return m.broadcastState()

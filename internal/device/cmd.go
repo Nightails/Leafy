@@ -19,6 +19,7 @@ func scanUSBDevicesCmd() tea.Cmd {
 }
 
 type mountUSBDeviceMsg USBDevice
+type unmountUSBDeviceMsg USBDevice
 
 // mountUSBDeviceCmd returns a command that mounts the given USB device and sends the updated device as a mountUSBDeviceMsg
 func mountUSBDeviceCmd(d USBDevice) tea.Cmd {
@@ -28,5 +29,16 @@ func mountUSBDeviceCmd(d USBDevice) tea.Cmd {
 			return app.ErrMsg(err)
 		}
 		return mountUSBDeviceMsg(md)
+	}
+}
+
+// unmountUSBDeviceCmd returns a command that unmounts the given USB device and sends the updated device as an unmountUSBDeviceMsg
+func unmountUSBDeviceCmd(d USBDevice) tea.Cmd {
+	return func() tea.Msg {
+		md, err := UnmountDevice(d)
+		if err != nil {
+			return app.ErrMsg(err)
+		}
+		return unmountUSBDeviceMsg(md)
 	}
 }

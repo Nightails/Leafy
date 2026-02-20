@@ -127,10 +127,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				it.spinnerFrame = m.spinner.View()
 				_ = m.deviceList.SetItem(m.mountingIndex, it)
 			}
-			return m, tea.Batch(
-				m.spinner.Tick,       // restart the spinner
-				mountUSBDeviceCmd(d), // start mounting
-			)
+
+			var cmds []tea.Cmd
+			cmds = append(cmds, m.spinner.Tick) // restart the spinner
+			if d.Mountpoint == "" {
+				cmds = append(cmds, mountUSBDeviceCmd(d))
+			} else {
+				cmds = append(cmds, unmountUSBDeviceCmd(d))
+			}
+			return m, tea.Batch(cmds...)
 		}
 	case usbDevicesMsg:
 		var cmds []tea.Cmd
@@ -158,6 +163,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = nil
 		return m, tea.Batch(
 			func() tea.Msg { return app.DeviceMountedMsg{MountPoint: msg.Mountpoint} },
+			app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{}),
+		)
+	case unmountUSBDeviceMsg:
+		m.deviceList.SetItem(m.mountingIndex, deviceItem{
+			usb:          USBDevice(msg),
+			mounting:     true,
+			spinnerFrame: m.spinner.View(),
+		})
+		m.err = nil
+		return m, tea.Batch(
+			func() tea.Msg { return app.DeviceUnmountedMsg{MountPoint: msg.Mountpoint} },
 			app.AfterCmd(m.timer.Remaining(), app.FinishedMsg{}),
 		)
 	case app.FinishedMsg:
