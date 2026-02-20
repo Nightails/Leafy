@@ -156,5 +156,6 @@ func (m Model) View() string {
 
 	var b strings.Builder
 	b.WriteString("\n" + m.mediaList.View())
+	b.WriteString("\n" + helpBarView())
 	return b.String()
 }
