@@ -3,7 +3,6 @@ package device
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -19,11 +18,6 @@ const (
 	scan
 	mount
 	quit
-)
-
-const (
-	loadDelay = 2 * time.Second
-	quitDelay = 1 * time.Second
 )
 
 type Model struct {
@@ -48,7 +42,7 @@ func NewModel() Model {
 	l.DisableQuitKeybindings()
 
 	// start timer for the first scan
-	t := style.MinDuration{Min: loadDelay}
+	t := style.MinDuration{Min: style.LoadDelay}
 	t.StartNow()
 
 	return Model{
@@ -105,7 +99,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case "q": // q, quit
 			m.state = quit
-			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
+			return m, app.AfterCmd(style.QuitDelay, app.QuitNowMsg{})
 		case "s": // s, scan again
 			if m.state == quit {
 				return m, nil

@@ -2,13 +2,12 @@ package media
 
 import (
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	app "github.com/nightails/leafy/internal/app"
-	style "github.com/nightails/leafy/internal/style"
+	"github.com/nightails/leafy/internal/app"
+	"github.com/nightails/leafy/internal/style"
 )
 
 type state int
@@ -19,8 +18,6 @@ const (
 	transfer
 	quit
 )
-
-const quitDelay = 1 * time.Second
 
 type Model struct {
 	state       state
@@ -42,7 +39,7 @@ func NewModel() Model {
 	l.SetShowHelp(false)
 
 	// start timer for the first scan
-	t := style.MinDuration{Min: quitDelay}
+	t := style.MinDuration{Min: style.QuitDelay}
 	t.StartNow()
 
 	return Model{
@@ -88,7 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case "ctrl+c":
 			m.state = quit
-			return m, app.AfterCmd(quitDelay, app.QuitNowMsg{})
+			return m, app.AfterCmd(style.QuitDelay, app.QuitNowMsg{})
 		}
 	// handle app messages
 	case app.StateMsg:

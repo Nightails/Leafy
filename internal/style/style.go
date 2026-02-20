@@ -1,6 +1,10 @@
 package style
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"time"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 var (
 	TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244")).PaddingLeft(1)
@@ -16,4 +20,9 @@ var (
 
 	SpinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("84")).PaddingLeft(1)
 	HelpStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("244")).PaddingLeft(1).PaddingBottom(1)
+)
+
+const (
+	LoadDelay = 1 * time.Second
+	QuitDelay = 1 * time.Second
 )
