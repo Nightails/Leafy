@@ -15,7 +15,7 @@ var (
 	ItemTextStyle            = lipgloss.NewStyle().Foreground(lipgloss.Color("244")).PaddingLeft(1)
 	ItemStyle                = lipgloss.NewStyle().Foreground(lipgloss.Color("244")).PaddingLeft(3)
 	ItemDescriptionStyle     = ItemStyle.PaddingLeft(5)
-	SelectedTitleStyle       = ItemStyle.Foreground(lipgloss.Color("84")).PaddingLeft(1)
+	SelectedItemStyle        = ItemStyle.Foreground(lipgloss.Color("84")).PaddingLeft(1)
 	SelectedDescriptionStyle = ItemStyle.Foreground(lipgloss.Color("78")).PaddingLeft(5)
 
 	SpinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("84")).PaddingLeft(1)

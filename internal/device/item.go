@@ -16,18 +16,24 @@ type deviceItem struct {
 	spinnerFrame string
 }
 
-func (i deviceItem) Title() string {
+func (i deviceItem) cursor() string {
+	if i.mounting {
+		return i.spinnerFrame
+	}
+	return style.SelectedItemStyle.Render(">")
+}
+func (i deviceItem) namePath() string {
 	return i.usb.Path + " | " + i.usb.Name
 }
 
-func (i deviceItem) Description() string {
+func (i deviceItem) mountedPath() string {
 	if i.mounting {
-		return i.spinnerFrame + style.ItemTextStyle.Render("Mounting...")
+		return " -> Mounting..."
 	}
 	if i.usb.Mountpoint == "" {
-		return "Not mounted"
+		return " -> Not mounted"
 	}
-	return "↳" + i.usb.Mountpoint
+	return " -> " + i.usb.Mountpoint
 }
 
 func (i deviceItem) FilterValue() string {
@@ -37,7 +43,7 @@ func (i deviceItem) FilterValue() string {
 type deviceItemDelegate struct{}
 
 func (d deviceItemDelegate) Height() int {
-	return 2
+	return 1
 }
 
 func (d deviceItemDelegate) Spacing() int {
@@ -54,19 +60,12 @@ func (d deviceItemDelegate) Render(w io.Writer, m list.Model, index int, item li
 		return
 	}
 
-	fnTitle := style.ItemStyle.Render
+	fn := style.ItemStyle.Render
 	if index == m.Index() {
-		fnTitle = func(s ...string) string {
-			return style.SelectedTitleStyle.Render(fmt.Sprintf("> %s", strings.Join(s, " ")))
+		fn = func(s ...string) string {
+			return i.cursor() + style.SelectedItemStyle.Render(strings.Join(s, " "))
 		}
 	}
 
-	fnDescription := style.ItemDescriptionStyle.Render
-	if index == m.Index() {
-		fnDescription = func(s ...string) string {
-			return style.SelectedDescriptionStyle.Render(strings.Join(s, " "))
-		}
-	}
-
-	_, _ = fmt.Fprintf(w, "%s\n%s\n", fnTitle(i.Title()), fnDescription(i.Description()))
+	_, _ = fmt.Fprintf(w, fn(i.namePath()+i.mountedPath()))
 }

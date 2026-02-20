@@ -48,7 +48,7 @@ func (d mediaItemDelegate) Render(w io.Writer, m list.Model, index int, item lis
 	fnTitle := style.ItemStyle.Render
 	if index == m.Index() {
 		fnTitle = func(s ...string) string {
-			return style.SelectedTitleStyle.Render(fmt.Sprintf("> %s", strings.Join(s, " ")))
+			return style.SelectedItemStyle.Render(fmt.Sprintf("> %s", strings.Join(s, " ")))
 		}
 	}
 
