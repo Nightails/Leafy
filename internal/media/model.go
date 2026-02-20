@@ -26,6 +26,11 @@ type Model struct {
 	timer       style.MinDuration
 	spinner     spinner.Model // loading spinner
 	err         error
+
+	// temp implement of transfer progress
+	transferCh <-chan tea.Msg
+	copied     int64
+	total      int64
 }
 
 func NewModel() Model {
@@ -69,6 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case app.ErrMsg:
 		m.err = msg
+		m.transferCh = nil
 		return m, nil
 	case tea.WindowSizeMsg:
 		m.mediaList.SetWidth(msg.Width)
@@ -83,7 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			}
 			return m, nil
-		case "ctrl+c":
+		case "q":
 			m.state = quit
 			return m, app.AfterCmd(style.QuitDelay, app.QuitNowMsg{})
 		}
@@ -108,6 +114,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case app.QuitNowMsg:
 		return m, tea.Quit
+	// handle transfer progress
+	case transferStartedMsg:
+		m.transferCh = msg.Ch
+		return m, listenTransferCmd(msg.Ch)
+	case transferProgressMsg:
+		m.copied = msg.Copied
+		m.total = msg.Total
+		// update progress bar
+		return m, listenTransferCmd(m.transferCh)
+	case transferDoneMsg:
+		m.transferCh = nil
+		return m, nil
 	}
 }
 
