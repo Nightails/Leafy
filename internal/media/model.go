@@ -40,8 +40,8 @@ func NewModel() Model {
 	l.SetShowTitle(false)
 	l.SetShowPagination(true)
 	l.SetShowStatusBar(true)
-	l.SetFilteringEnabled(true)
 	l.SetShowHelp(false)
+	l.SetFilteringEnabled(false)
 
 	// start timer for the first scan
 	t := style.MinDuration{Min: style.QuitDelay}
@@ -104,8 +104,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				scanMediaCmd(m.mountPoints),
 			)
 		case " ": // space bar, add the selected file to the transfer queue
-			// TODO: add the selected file to the transfer queue
-			return m, nil
+			i := m.mediaList.SelectedItem().(mediaItem)
+			i.selected = !i.selected
+			m.mediaList.SetItem(m.mediaList.Index(), i)
+			return m, nil // TODO: add the selected file to the transfer queue
 		case "enter", "return": // enter, start transferring selected files
 			// TODO: start transferring selected files
 			return m, nil
@@ -117,11 +119,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mediaMsg:
 		var media []list.Item
 		for _, m := range msg {
+			s := strings.Split(m, "/")
 			media = append(media, mediaItem{
-				srcPath:      m,
-				destPath:     "",
-				transferring: false,
-				spinnerFrame: "",
+				name:     s[len(s)-1],
+				srcPath:  m,
+				destPath: "",
 			})
 		}
 		m.mediaList.SetItems(media)

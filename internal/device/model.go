@@ -36,10 +36,9 @@ func NewModel() Model {
 	l := list.New([]list.Item{}, deviceItemDelegate{}, 0, 10)
 	l.SetShowTitle(false)
 	l.SetShowPagination(true)
+	l.SetShowStatusBar(true)
 	l.SetShowHelp(false)
-	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
-	l.DisableQuitKeybindings()
 
 	// start timer for the first scan
 	t := style.MinDuration{Min: style.LoadDelay}

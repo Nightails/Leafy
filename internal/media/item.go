@@ -11,29 +11,26 @@ import (
 )
 
 type mediaItem struct {
-	srcPath      string
-	destPath     string
-	transferring bool
-	spinnerFrame string
+	name     string
+	srcPath  string
+	destPath string
+	selected bool
 }
 
-func (i mediaItem) Title() string { return i.srcPath }
-
-func (i mediaItem) Description() string {
-	if i.transferring {
-		return i.spinnerFrame + style.ItemTextStyle.Render("Transferring...")
+func (i mediaItem) selectedBox() string {
+	if !i.selected {
+		return " "
 	}
-	if i.destPath == "" {
-		return ""
-	}
-	return "↳" + i.destPath
+	return style.TextHighlightStyle.Render("✓")
 }
+
+func (i mediaItem) fileName() string { return i.name }
 
 func (i mediaItem) FilterValue() string { return i.srcPath }
 
 type mediaItemDelegate struct{}
 
-func (d mediaItemDelegate) Height() int { return 2 }
+func (d mediaItemDelegate) Height() int { return 1 }
 
 func (d mediaItemDelegate) Spacing() int { return 0 }
 
@@ -45,19 +42,20 @@ func (d mediaItemDelegate) Render(w io.Writer, m list.Model, index int, item lis
 		return
 	}
 
-	fnTitle := style.ItemStyle.Render
+	cursor := style.SelectedItemStyle.Render(">")
+
+	fn := func(s ...string) string {
+		o := style.ItemStyle.Render("[")
+		c := style.ItemTextStyle.Render("] ")
+		return o + i.selectedBox() + c + style.ItemTextStyle.Render(strings.Join(s, " "))
+	}
 	if index == m.Index() {
-		fnTitle = func(s ...string) string {
-			return style.SelectedItemStyle.Render(fmt.Sprintf("> %s", strings.Join(s, " ")))
+		fn = func(s ...string) string {
+			o := style.TextHighlightStyle.Render(" [")
+			c := style.TextHighlightStyle.Render("]")
+			return cursor + o + i.selectedBox() + c + style.SelectedItemStyle.Render(strings.Join(s, " "))
 		}
 	}
 
-	fnDescription := style.ItemDescriptionStyle.Render
-	if index == m.Index() {
-		fnDescription = func(s ...string) string {
-			return style.SelectedDescriptionStyle.Render(strings.Join(s, " "))
-		}
-	}
-
-	_, _ = fmt.Fprintf(w, "%s\n%s\n", fnTitle(i.Title()), fnDescription(i.Description()))
+	_, _ = fmt.Fprintf(w, fn(i.fileName()))
 }
