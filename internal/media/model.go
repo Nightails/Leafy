@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nightails/leafy/internal/app"
 	"github.com/nightails/leafy/internal/style"
@@ -23,6 +24,7 @@ type Model struct {
 	state       state
 	mountPoints []string
 	mediaList   list.Model
+	destInput   textinput.Model
 	timer       style.MinDuration
 	spinner     spinner.Model // loading spinner
 	err         error
@@ -47,9 +49,13 @@ func NewModel() Model {
 	t := style.MinDuration{Min: style.QuitDelay}
 	t.StartNow()
 
+	i := textinput.New()
+	i.Placeholder = "~/Videos/"
+
 	return Model{
 		state:     scan, // the first scan on init
 		mediaList: l,
+		destInput: i,
 		timer:     t,
 		spinner:   s,
 		err:       nil,
@@ -78,6 +84,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tea.WindowSizeMsg:
 		m.mediaList.SetWidth(msg.Width)
+		m.destInput.Width = msg.Width
 		return m, nil
 	// handle key presses
 	case tea.KeyMsg:
@@ -158,6 +165,7 @@ func (m Model) View() string {
 
 	var b strings.Builder
 	b.WriteString("\n" + m.mediaList.View())
-	b.WriteString("\n" + helpBarView())
+	b.WriteString("\n" + "Destination: " + m.destInput.View())
+	b.WriteString("\n\n" + helpBarView())
 	return b.String()
 }
