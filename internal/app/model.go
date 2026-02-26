@@ -19,6 +19,7 @@ type tabID int
 const (
 	tabDevice tabID = iota
 	tabMedia
+	tabTransfer
 )
 
 type Model struct {
@@ -86,15 +87,18 @@ func (m Model) View() string {
 
 	dTab := style.TabTextStyle.Render("Device")
 	mTab := style.TabTextStyle.Render("Media")
+	tTab := style.TabTextStyle.Render("Transfer")
 
 	switch m.active {
 	case tabDevice:
 		dTab = style.TabSelectedStyle.Render("Device")
 	case tabMedia:
 		mTab = style.TabSelectedStyle.Render("Media")
+	case tabTransfer:
+		tTab = style.TabSelectedStyle.Render("Transfer")
 	}
 
-	b.WriteString(fmt.Sprintf(" %s | %s\n", dTab, mTab))
+	b.WriteString(fmt.Sprintf(" %s | %s | %s\n", dTab, mTab, tTab))
 	b.WriteString(m.tabs[m.active].View())
 
 	return b.String()
