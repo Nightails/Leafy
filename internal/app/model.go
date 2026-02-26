@@ -9,11 +9,6 @@ import (
 	"github.com/nightails/leafy/internal/style"
 )
 
-type State struct {
-	MountPoints     []string
-	FilesToTransfer []string
-}
-
 type tabID int
 
 const (
@@ -57,6 +52,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 	case tea.KeyMsg:
 		switch msg.String() {
+		// TODO: move tab handling to individual tab models
 		case "enter", "return":
 			i := min(int(m.active)+1, len(m.tabs)-1)
 			return m.switchTo(tabID(i))
@@ -73,7 +69,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m.broadcastState()
 	case FileSelectedMsg:
-		m.state.FilesToTransfer = append(m.state.FilesToTransfer, msg.Path)
+		// TODO: refactor to use new MediaFile struct
+		//m.state.MediaFiles = append(m.state.MediaFiles, MediaFile{Name: msg.Name, Src: msg.Path, Dest: ""})
 		return m.broadcastState()
 	}
 

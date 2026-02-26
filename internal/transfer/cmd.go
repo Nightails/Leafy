@@ -1,59 +1,32 @@
 package transfer
 
 import (
-	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/app"
 )
 
-type transferProgressMsg struct {
-	Copied int64
-	Total  int64
-}
-
-type transferDoneMsg struct{}
-
-type transferStartedMsg struct {
-	Ch <-chan tea.Msg
-}
-
-// transferMediaCmd starts copying in a goroutine and returns a message containing
-// a channel that will emit progress/done/err messages.
-func transferMediaCmd(src, dst string) tea.Cmd {
+func startCopyCmd(task task) tea.Cmd {
 	return func() tea.Msg {
-		ch := make(chan tea.Msg, 32)
-
+		taskCh := make(chan tea.Msg)
 		go func() {
-			defer close(ch)
-
-			send := func(msg tea.Msg) {
-				select {
-				case ch <- msg:
-				default:
-				}
-			}
-
-			err := copyFileWithProgress(src, dst, func(copied, total int64) {
-				send(transferProgressMsg{Copied: copied, Total: total})
-			})
-			if err != nil {
-				send(app.ErrMsg(fmt.Errorf("transfer: %w", err)))
+			// TODO: Implement media transfer logic
+			if task.err != nil {
+				taskCh <- taskDoneMsg{ID: task.id}
 				return
 			}
-			send(transferDoneMsg{})
+			for task.done < task.total {
+				taskCh <- taskProgressMsg{task.id, task.done, task.total}
+			}
+			taskCh <- taskDoneMsg{ID: task.id}
 		}()
-
-		return transferStartedMsg{Ch: ch}
+		return transferStartedMsg{Ch: taskCh}
 	}
 }
 
-// listenTransferCmd waits for the next message from the transfer goroutine.
-func listenTransferCmd(ch <-chan tea.Msg) tea.Cmd {
+func listenTaskCmd(task task, ch chan tea.Msg) tea.Cmd {
 	return func() tea.Msg {
 		msg, ok := <-ch
 		if !ok {
-			return transferDoneMsg{}
+			return taskDoneMsg{ID: task.id}
 		}
 		return msg
 	}
