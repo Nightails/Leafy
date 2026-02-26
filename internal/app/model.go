@@ -21,7 +21,6 @@ type Model struct {
 	state  State
 	active tabID
 	tabs   []tea.Model
-	inited map[tabID]bool
 }
 
 func NewAppModel(tabs []tea.Model) Model {
@@ -29,12 +28,10 @@ func NewAppModel(tabs []tea.Model) Model {
 		state:  State{},
 		active: tabDevice,
 		tabs:   tabs,
-		inited: map[tabID]bool{},
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	m.inited[m.active] = true
 	return m.tabs[m.active].Init()
 }
 
@@ -103,10 +100,6 @@ func (m Model) View() string {
 
 func (m Model) switchTo(id tabID) (tea.Model, tea.Cmd) {
 	m.active = id
-	if m.inited[id] {
-		return m, nil
-	}
-	m.inited[id] = true
 	return m, m.tabs[id].Init()
 }
 
