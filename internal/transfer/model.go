@@ -2,7 +2,6 @@ package transfer
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/app"
 )
 
 type state int
@@ -23,22 +22,20 @@ type task struct {
 	err         error
 }
 type Model struct {
-	filesToTransfer []app.MediaFile
-	tasks           []task
-	maxConcurrent   int
-	runningCount    int
-	indexes         []int
-	doneCount       int
+	tasks         []task
+	maxConcurrent int
+	runningCount  int
+	indexes       []int
+	doneCount     int
 }
 
 func NewModel() Model {
 	return Model{
-		filesToTransfer: make([]app.MediaFile, 0),
-		tasks:           make([]task, 0),
-		maxConcurrent:   4, // allowing 4 concurrent transfers
-		runningCount:    0,
-		indexes:         make([]int, 0),
-		doneCount:       0,
+		tasks:         make([]task, 0),
+		maxConcurrent: 4, // allowing 4 concurrent transfers
+		runningCount:  0,
+		indexes:       make([]int, 0),
+		doneCount:     0,
 	}
 }
 
