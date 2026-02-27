@@ -17,13 +17,25 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	// TODO: 1.scanning/mouting usb devices
-	// TODO: 2.scanning for supported media files
-	return nil
+	return tea.Batch(
+		initDevicesCmd(),
+		findMediaCmd(),
+	)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// TODO: 1.handle user input/navigation
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "ctrl+c":
+			// TODO: check for running tasks
+			return m, tea.Batch(
+				removeDevicesCmd(m.state.devices),
+				tea.Quit,
+			)
+		}
+	}
 	// TODO: 2.handle msgs for mounting devices/scanning media files/transfering media files
 	return m, nil
 }
@@ -31,7 +43,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	// TODO: 1.display found media files
 	// TODO: 2.display prompt for destination path
-	// TODO: 3.display transfering progress
+	// TODO: 3.display transferring progress
 	// TODO: 4.display help bar
 	return "leafy"
 }

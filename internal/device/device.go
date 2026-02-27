@@ -24,6 +24,8 @@ func FindUSBDevices() ([]USBDevice, error) {
 				if len(bd.Children[0].Mountpoints) > 0 {
 					mp = bd.Children[0].Mountpoints[0]
 				}
+				// take the first partition for now
+				// TODO: return multiple partitions from the same device
 				devs = append(devs, USBDevice{
 					bd.Model,
 					bd.Children[0].Path,

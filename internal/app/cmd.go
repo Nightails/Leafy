@@ -5,7 +5,7 @@ import (
 	dev "github.com/nightails/leafy/internal/device"
 )
 
-// initDevices finds and mount usb devices.
+// initDevices finds and mounts usb devices.
 func initDevicesCmd() tea.Cmd {
 	return func() tea.Msg {
 		devs, err := dev.FindUSBDevices()
@@ -30,11 +30,19 @@ func initDevicesCmd() tea.Cmd {
 	}
 }
 
-// uninitDevices unmounts all usb devices.
-func uninitDevicesCmd(devs []device) tea.Cmd {
+// removeDevices unmounts all usb devices.
+func removeDevicesCmd(devs []device) tea.Cmd {
 	return func() tea.Msg {
+		if len(devs) == 0 {
+			return nil
+		}
+
 		for _, d := range devs {
-			if err := dev.UnmountDevice(d); err != nil {
+			if _, err := dev.UnmountDevice(dev.USBDevice{
+				Name:       d.name,
+				Path:       d.path,
+				Mountpoint: d.mountpoint,
+			}); err != nil {
 				return errMsg(err)
 			}
 		}
@@ -42,7 +50,7 @@ func uninitDevicesCmd(devs []device) tea.Cmd {
 	}
 }
 
-// findMedia searchs for supported media formats and return a list.
+// findMedia searches for supported media formats and returns a list.
 func findMediaCmd() tea.Cmd {
 	return func() tea.Msg {
 		// TODO: implements find media logic
@@ -50,7 +58,7 @@ func findMediaCmd() tea.Cmd {
 	}
 }
 
-// copyMedia copys given media to destination path.
+// copyMedia copies given media to destination path.
 func copyMedia(media []medium) tea.Cmd {
 	return func() tea.Msg {
 		// TODO: implements copying media logic
