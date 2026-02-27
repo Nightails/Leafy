@@ -1,32 +1,59 @@
 package app
 
 import (
-	"time"
-
 	tea "github.com/charmbracelet/bubbletea"
+	dev "github.com/nightails/leafy/internal/device"
 )
 
-type StateMsg struct {
-	State State
-}
-type DeviceMountedMsg struct {
-	MountPoint string
-}
-type DeviceUnmountedMsg struct {
-	MountPoint string
-}
-type FileSelectedMsg struct {
-	Path string
-}
-
-type ErrMsg error
-type FinishedMsg struct{}
-type QuitNowMsg struct{}
-
-// AfterCmd returns a command that sends the given message after the given duration
-func AfterCmd(d time.Duration, msg tea.Msg) tea.Cmd {
-	if d <= 0 {
-		return func() tea.Msg { return msg }
+// initDevices finds and mount usb devices.
+func initDevicesCmd() tea.Cmd {
+	return func() tea.Msg {
+		devs, err := dev.FindUSBDevices()
+		var mdevs []device
+		if err != nil {
+			return errMsg(err)
+		}
+		for _, d := range devs {
+			if d.Mountpoint == "" {
+				d, err = dev.MountDevice(d)
+				if err != nil {
+					return errMsg(err)
+				}
+				mdevs = append(mdevs, device{
+					d.Name,
+					d.Path,
+					d.Mountpoint,
+				})
+			}
+		}
+		return mountedDevsMsg(mdevs)
 	}
-	return tea.Tick(d, func(time.Time) tea.Msg { return msg })
+}
+
+// uninitDevices unmounts all usb devices.
+func uninitDevicesCmd(devs []device) tea.Cmd {
+	return func() tea.Msg {
+		for _, d := range devs {
+			if err := dev.UnmountDevice(d); err != nil {
+				return errMsg(err)
+			}
+		}
+		return nil
+	}
+}
+
+// findMedia searchs for supported media formats and return a list.
+func findMediaCmd() tea.Cmd {
+	return func() tea.Msg {
+		// TODO: implements find media logic
+		return nil
+	}
+}
+
+// copyMedia copys given media to destination path.
+func copyMedia(media []medium) tea.Cmd {
+	return func() tea.Msg {
+		// TODO: implements copying media logic
+		return nil
+	}
 }

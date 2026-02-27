@@ -1,118 +1,37 @@
+// Package app implements the main loop of the Leafy app.
+// This includes user interactions and prompts.
 package app
 
 import (
-	"fmt"
-	"slices"
-	"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nightails/leafy/internal/style"
-)
-
-type tabID int
-
-const (
-	tabDevice tabID = iota
-	tabMedia
-	tabTransfer
 )
 
 type Model struct {
-	state  State
-	active tabID
-	tabs   []tea.Model
+	state state
 }
 
-func NewAppModel(tabs []tea.Model) Model {
+func New() Model {
 	return Model{
-		state:  State{},
-		active: tabDevice,
-		tabs:   tabs,
+		state: state{},
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.tabs[m.active].Init()
+	// TODO: 1.scanning/mouting usb devices
+	// TODO: 2.scanning for supported media files
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		var cmds []tea.Cmd
-		for i := range m.tabs {
-			var cmd tea.Cmd
-			m.tabs[i], cmd = m.tabs[i].Update(msg)
-			if cmd != nil {
-				cmds = append(cmds, cmd)
-			}
-		}
-		return m, tea.Batch(cmds...)
-	case tea.KeyMsg:
-		switch msg.String() {
-		// TODO: move tab handling to individual tab models
-		case "enter", "return":
-			i := min(int(m.active)+1, len(m.tabs)-1)
-			return m.switchTo(tabID(i))
-		case "backspace":
-			i := max(0, int(m.active)-1)
-			return m.switchTo(tabID(i))
-		}
-	case DeviceMountedMsg:
-		m.state.MountPoints = append(m.state.MountPoints, msg.MountPoint)
-		return m.broadcastState()
-	case DeviceUnmountedMsg:
-		if i := slices.Index(m.state.MountPoints, msg.MountPoint); i >= 0 {
-			m.state.MountPoints = slices.Delete(m.state.MountPoints, i, i+1)
-		}
-		return m.broadcastState()
-	case FileSelectedMsg:
-		// TODO: refactor to use new MediaFile struct
-		//m.state.MediaFiles = append(m.state.MediaFiles, MediaFile{Name: msg.Name, Src: msg.Path, Dest: ""})
-		return m.broadcastState()
-	}
-
-	var cmd tea.Cmd
-	m.tabs[m.active], cmd = m.tabs[m.active].Update(msg)
-	return m, cmd
+	// TODO: 1.handle user input/navigation
+	// TODO: 2.handle msgs for mounting devices/scanning media files/transfering media files
+	return m, nil
 }
 
 func (m Model) View() string {
-	var b strings.Builder
-
-	dTab := style.TabTextStyle.Render("Device")
-	mTab := style.TabTextStyle.Render("Media")
-	tTab := style.TabTextStyle.Render("Transfer")
-
-	switch m.active {
-	case tabDevice:
-		dTab = style.TabSelectedStyle.Render("Device")
-	case tabMedia:
-		mTab = style.TabSelectedStyle.Render("Media")
-	case tabTransfer:
-		tTab = style.TabSelectedStyle.Render("Transfer")
-	}
-
-	b.WriteString(fmt.Sprintf(" %s | %s | %s\n", dTab, mTab, tTab))
-	b.WriteString(m.tabs[m.active].View())
-
-	return b.String()
-}
-
-func (m Model) switchTo(id tabID) (tea.Model, tea.Cmd) {
-	m.active = id
-	return m, m.tabs[id].Init()
-}
-
-func (m Model) broadcastState() (tea.Model, tea.Cmd) {
-	msg := StateMsg{m.state}
-
-	var cmds []tea.Cmd
-	for i := range m.tabs {
-		var cmd tea.Cmd
-		m.tabs[i], cmd = m.tabs[i].Update(msg)
-		if cmd != nil {
-			cmds = append(cmds, cmd)
-		}
-	}
-	return m, tea.Batch(cmds...)
+	// TODO: 1.display found media files
+	// TODO: 2.display prompt for destination path
+	// TODO: 3.display transfering progress
+	// TODO: 4.display help bar
+	return "leafy"
 }
