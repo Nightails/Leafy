@@ -64,7 +64,7 @@ func findMediaCmd(devices []device) tea.Cmd {
 		}
 
 		var media []medium
-		files, err := file.GetFiles(paths)
+		files, err := file.GetFiles(paths, formats)
 		if err != nil {
 			return errMsg(err)
 		}
@@ -72,7 +72,10 @@ func findMediaCmd(devices []device) tea.Cmd {
 			return nil
 		}
 		for _, f := range files {
-			media = append(media, medium{src: f})
+			media = append(media, medium{
+				name: f.Name,
+				src:  f.Path,
+			})
 		}
 		return mediaMsg(media)
 	}

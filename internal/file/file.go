@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-// Supported formats
-var (
-	audioFormats = []string{".mp3", ".wav", ".flac"}
-	videoFormats = []string{".mp4", ".avi", ".mkv"}
-)
+type File struct {
+	Name string
+	Ext  string
+	Path string
+}
 
-// GetFiles scans the provided file paths and returns a list of file paths.
-func GetFiles(paths []string) ([]string, error) {
-	var mediaFiles []string
+// GetFiles scans the provided File paths and returns a list of File paths.
+func GetFiles(srcPaths, formats []string) ([]File, error) {
+	var supportedFiles []File
 
-	for _, p := range paths {
+	for _, p := range srcPaths {
 		if p == "" {
 			continue
 		}
@@ -29,7 +29,11 @@ func GetFiles(paths []string) ([]string, error) {
 		}
 
 		if !info.IsDir() {
-			mediaFiles = addFile(mediaFiles, p)
+			supportedFiles = addFile(
+				supportedFiles,
+				File{info.Name(), filepath.Ext(p), p},
+				formats,
+			)
 			continue
 		}
 
@@ -40,7 +44,11 @@ func GetFiles(paths []string) ([]string, error) {
 			if d.IsDir() {
 				return nil
 			}
-			mediaFiles = addFile(mediaFiles, path)
+			supportedFiles = addFile(
+				supportedFiles,
+				File{d.Name(), filepath.Ext(path), path},
+				formats,
+			)
 			return nil
 		})
 		if err != nil {
@@ -48,32 +56,25 @@ func GetFiles(paths []string) ([]string, error) {
 		}
 	}
 
-	return mediaFiles, nil
+	return supportedFiles, nil
 }
 
-// addFile adds a file path to the given list if it's a supported format and not already present.
-func addFile(files []string, path string) []string {
-	if !isSupported(path) {
-		return files
+// addFile adds a File Path to the given list if it's a supported format and not already present.
+func addFile(list []File, f File, formats []string) []File {
+	if !isSupported(f, formats) {
+		return list
 	}
-	if slices.Contains(files, path) {
-		return files
+	if slices.Contains(list, f) {
+		return list
 	}
-	files = append(files, path)
-	return files
+	list = append(list, f)
+	return list
 }
 
-// isSupported returns true if the given file path has a supported format.
-func isSupported(path string) bool {
-	for _, ext := range audioFormats {
-		if strings.HasSuffix(strings.ToLower(path), ext) {
-			return true
-		}
-	}
-	for _, ext := range videoFormats {
-		if strings.HasSuffix(strings.ToLower(path), ext) {
-			return true
-		}
+// isSupported returns true if the given File Path has a supported format.
+func isSupported(f File, formats []string) bool {
+	if slices.Contains(formats, strings.ToLower(f.Ext)) {
+		return true
 	}
 	return false
 }
