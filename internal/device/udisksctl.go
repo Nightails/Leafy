@@ -8,7 +8,7 @@ import (
 
 // mountUdisks mounts the given device using udisksctl and returns the mountpoint.
 func mountUdisks(device string) (string, error) {
-	// matches: Mounted /dev/sda1 at /media/USER/LABLE.
+	// matches: Mounted /dev/sda1 at /file/USER/LABLE.
 	var reMounted = regexp.MustCompile(`^Mounted\s+(/dev/\S+)\s+at\s+(.+?)\.?\s*$`)
 
 	args := []string{"mount", "-b", device}

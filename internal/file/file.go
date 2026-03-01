@@ -1,4 +1,4 @@
-package media
+package file
 
 import (
 	"io/fs"
@@ -8,14 +8,14 @@ import (
 	"strings"
 )
 
-// Supported media file formats
+// Supported formats
 var (
 	audioFormats = []string{".mp3", ".wav", ".flac"}
 	videoFormats = []string{".mp4", ".avi", ".mkv"}
 )
 
-// GetMediaFiles scans the provided file paths and returns a list of media file paths.
-func GetMediaFiles(paths []string) ([]string, error) {
+// GetFiles scans the provided file paths and returns a list of file paths.
+func GetFiles(paths []string) ([]string, error) {
 	var mediaFiles []string
 
 	for _, p := range paths {
@@ -29,7 +29,7 @@ func GetMediaFiles(paths []string) ([]string, error) {
 		}
 
 		if !info.IsDir() {
-			mediaFiles = addMediaFile(mediaFiles, p)
+			mediaFiles = addFile(mediaFiles, p)
 			continue
 		}
 
@@ -40,7 +40,7 @@ func GetMediaFiles(paths []string) ([]string, error) {
 			if d.IsDir() {
 				return nil
 			}
-			mediaFiles = addMediaFile(mediaFiles, path)
+			mediaFiles = addFile(mediaFiles, path)
 			return nil
 		})
 		if err != nil {
@@ -51,9 +51,9 @@ func GetMediaFiles(paths []string) ([]string, error) {
 	return mediaFiles, nil
 }
 
-// addMediaFile adds a media file path to the given list if it's a supported format and not already present.
-func addMediaFile(files []string, path string) []string {
-	if !isSupportedFormat(path) {
+// addFile adds a file path to the given list if it's a supported format and not already present.
+func addFile(files []string, path string) []string {
+	if !isSupported(path) {
 		return files
 	}
 	if slices.Contains(files, path) {
@@ -63,8 +63,8 @@ func addMediaFile(files []string, path string) []string {
 	return files
 }
 
-// isSupportedFormat returns true if the given file path has a supported format.
-func isSupportedFormat(path string) bool {
+// isSupported returns true if the given file path has a supported format.
+func isSupported(path string) bool {
 	for _, ext := range audioFormats {
 		if strings.HasSuffix(strings.ToLower(path), ext) {
 			return true

@@ -3,10 +3,10 @@ package app
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	dev "github.com/nightails/leafy/internal/device"
-	file "github.com/nightails/leafy/internal/media"
+	"github.com/nightails/leafy/internal/file"
 )
 
-// initDevices finds and mounts usb devices.
+// initDevicesCmd finds and mounts usb devices.
 func initDevicesCmd() tea.Cmd {
 	return func() tea.Msg {
 		var mdevs []device
@@ -31,7 +31,7 @@ func initDevicesCmd() tea.Cmd {
 	}
 }
 
-// removeDevices unmounts all usb devices.
+// removeDevicesCmd unmounts all usb devices.
 func removeDevicesCmd(devs []device) tea.Cmd {
 	return func() tea.Msg {
 		if len(devs) == 0 {
@@ -51,7 +51,7 @@ func removeDevicesCmd(devs []device) tea.Cmd {
 	}
 }
 
-// findMedia searches for supported media formats and returns a list.
+// findMediaCmd searches for supported file formats and returns a list.
 func findMediaCmd(devices []device) tea.Cmd {
 	return func() tea.Msg {
 		if len(devices) == 0 {
@@ -64,7 +64,7 @@ func findMediaCmd(devices []device) tea.Cmd {
 		}
 
 		var media []medium
-		files, err := file.GetMediaFiles(paths)
+		files, err := file.GetFiles(paths)
 		if err != nil {
 			return errMsg(err)
 		}
@@ -81,7 +81,7 @@ func findMediaCmd(devices []device) tea.Cmd {
 // copyMedia copies given media to destination path.
 func copyMedia(media []medium) tea.Cmd {
 	return func() tea.Msg {
-		// TODO: implements copying media logic
+		// TODO: implements copying file logic
 		return nil
 	}
 }

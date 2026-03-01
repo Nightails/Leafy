@@ -8,7 +8,7 @@ func startCopyCmd(task task) tea.Cmd {
 	return func() tea.Msg {
 		taskCh := make(chan tea.Msg)
 		go func() {
-			// TODO: Implement media transfer logic
+			// TODO: Implement file transfer logic
 			if task.err != nil {
 				taskCh <- taskDoneMsg{ID: task.id}
 				return

@@ -47,12 +47,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state.media = msg
 		return m, nil
 	}
-	// TODO: 2.handle msgs for mounting devices/scanning media files/transfering media files
+	// TODO: 2.handle msgs for mounting devices/scanning file files/transfering file files
 	return m, nil
 }
 
 func (m Model) View() string {
-	// TODO: 1.display found media files
+	// TODO: 1.display found file files
 	// TODO: 2.display prompt for destination path
 	// TODO: 3.display transferring progress
 	// TODO: 4.display help bar
@@ -63,7 +63,7 @@ func (m Model) View() string {
 	}
 
 	if len(m.state.media) == 0 {
-		b.WriteString("No media files found")
+		b.WriteString("No file files found")
 		return b.String()
 	}
 
