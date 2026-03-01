@@ -1,9 +1,9 @@
 package app
 
 type state struct {
-	devices []device
-	media   []medium
-	tasks   []task
+	devices []device // mounted devices
+	media   []medium // media to be copied
+	tasks   []task   // tasks to be executed
 }
 
 type device struct {
