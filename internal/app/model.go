@@ -18,14 +18,15 @@ type Model struct {
 func New() Model {
 	l := list.New([]list.Item{}, mediaItemDelegate{}, 100, 10)
 	l.SetShowTitle(false)
-	l.SetShowStatusBar(true)
-	l.SetShowPagination(true)
+	l.SetShowStatusBar(false)
+	l.SetShowPagination(false)
 	l.SetShowHelp(false)
 	l.SetFilteringEnabled(false)
 
 	return Model{
 		state: state{},
 		list:  l,
+		err:   nil,
 	}
 }
 
@@ -37,6 +38,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+		default:
+			if m.err == nil {
+				var cmd tea.Cmd
+				m.list, cmd = m.list.Update(msg)
+				return m, cmd
+			}
+			return m, nil
 		case "q", "ctrl+c":
 			// TODO: check for running tasks
 			return m, tea.Batch(
@@ -47,6 +55,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg
 		return m, nil
+	case tea.WindowSizeMsg:
+		m.list.SetWidth(msg.Width)
 	case devicesMsg:
 		if len(msg) == 0 {
 			return m, nil
@@ -54,7 +64,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state.devices = msg
 		return m, findMediaCmd(msg)
 	case mediaMsg:
-		m.state.media = msg
+		if len(msg) == 0 {
+			return m, nil
+		}
+		items := make([]list.Item, 0, len(msg))
+		for _, i := range msg {
+			items = append(items, mediumItem{i, false})
+		}
+		m.list.SetItems(items)
+		m.list.SetHeight(len(items))
 		return m, nil
 		// TODO: handle msg for transferring media
 	}
@@ -72,13 +90,6 @@ func (m Model) View() string {
 		return b.String()
 	}
 
-	if len(m.state.media) == 0 {
-		b.WriteString("No file files found")
-		return b.String()
-	}
-
-	for _, m := range m.state.media {
-		b.WriteString("\n" + m.name)
-	}
+	b.WriteString(m.list.View())
 	return b.String()
 }

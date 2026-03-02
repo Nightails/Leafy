@@ -8,7 +8,8 @@ import (
 )
 
 type mediumItem struct {
-	medium medium
+	medium   medium
+	selected bool
 }
 
 func (mi mediumItem) FilterValue() string {
@@ -24,6 +25,14 @@ func (mi mediaItemDelegate) Render(w io.Writer, m list.Model, index int, item li
 	var i, ok = item.(mediumItem)
 	if !ok {
 		return
+	}
+	if index == m.Index() {
+		_, _ = io.WriteString(w, "> ")
+	}
+	if i.selected {
+		_, _ = io.WriteString(w, "[x] ")
+	} else {
+		_, _ = io.WriteString(w, "[ ] ")
 	}
 	_, _ = io.WriteString(w, i.medium.name)
 }
