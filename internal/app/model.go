@@ -75,6 +75,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				removeDevicesCmd(m.state.devices),
 				tea.Quit,
 			)
+		case " ":
+			index := m.mediaList.Index()
+			item := m.mediaList.SelectedItem()
+			selectItem := item.(mediumItem)
+			selectItem.selected = !selectItem.selected
+			m.mediaList.SetItem(index, selectItem)
+			return m, nil
+		case "enter", "return":
+			return m, nil
 		}
 	case errMsg:
 		m.err = msg
