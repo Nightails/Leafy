@@ -83,6 +83,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.mediaList.SetItem(index, selectItem)
 			return m, nil
 		case "enter", "return":
+			switch m.currStep {
+			case media:
+				// TODO: store selected media to state.media list
+				// TODO: proceed to the destination step
+				return m, nil
+			case destination:
+				// TODO: store the destination to each medium dest, with naming applied
+				// TODO: proceed to the copying step
+				return m, nil
+			case copying:
+				// Do nothing while copying
+				// Only interaction is quitting/cancelling
+				return m, nil
+			}
 			return m, nil
 		}
 	case errMsg:
