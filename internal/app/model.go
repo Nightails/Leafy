@@ -6,27 +6,43 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type step int
+
+const (
+	media = iota
+	destination
+	copying
+)
+
 type Model struct {
-	state state
-	list  list.Model
-	err   error
+	state     state
+	currStep  step
+	mediaList list.Model
+	destInput textinput.Model
+	err       error
 }
 
 func New() Model {
-	l := list.New([]list.Item{}, mediaItemDelegate{}, 100, 10)
+	l := list.New([]list.Item{}, mediaItemDelegate{}, 0, 1)
 	l.SetShowTitle(false)
 	l.SetShowStatusBar(false)
 	l.SetShowPagination(false)
 	l.SetShowHelp(false)
 	l.SetFilteringEnabled(false)
 
+	ti := textinput.New()
+	ti.Placeholder = "Destination Path"
+
 	return Model{
-		state: state{},
-		list:  l,
-		err:   nil,
+		state:     state{},
+		currStep:  media,
+		mediaList: l,
+		destInput: ti,
+		err:       nil,
 	}
 }
 
@@ -41,8 +57,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			if m.err == nil {
 				var cmd tea.Cmd
-				m.list, cmd = m.list.Update(msg)
-				return m, cmd
+				switch m.currStep {
+				case media:
+					m.mediaList, cmd = m.mediaList.Update(msg)
+					return m, cmd
+				case destination:
+					m.destInput, cmd = m.destInput.Update(msg)
+					return m, cmd
+				case copying:
+					return m, nil
+				}
 			}
 			return m, nil
 		case "q", "ctrl+c":
@@ -56,7 +80,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg
 		return m, nil
 	case tea.WindowSizeMsg:
-		m.list.SetWidth(msg.Width)
+		m.mediaList.SetWidth(msg.Width)
 	case devicesMsg:
 		if len(msg) == 0 {
 			return m, nil
@@ -71,8 +95,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		for _, i := range msg {
 			items = append(items, mediumItem{i, false})
 		}
-		m.list.SetItems(items)
-		m.list.SetHeight(len(items))
+		m.mediaList.SetItems(items)
+		m.mediaList.SetHeight(len(items))
 		return m, nil
 		// TODO: handle msg for transferring media
 	}
@@ -90,6 +114,17 @@ func (m Model) View() string {
 		return b.String()
 	}
 
-	b.WriteString(m.list.View())
+	if m.currStep >= media {
+		b.WriteString(m.mediaList.View())
+	}
+	if m.currStep >= destination {
+		b.WriteString("\n")
+		b.WriteString(m.destInput.View())
+	}
+	if m.currStep >= copying {
+		b.WriteString("\n")
+		// TODO: print the copying progress
+	}
+	// TODO: print the help bar
 	return b.String()
 }

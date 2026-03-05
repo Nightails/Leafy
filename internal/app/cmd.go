@@ -51,7 +51,7 @@ func removeDevicesCmd(devs []device) tea.Cmd {
 	}
 }
 
-// findMediaCmd searches for supported file formats and returns a list.
+// findMediaCmd searches for supported file formats and returns a mediaList.
 func findMediaCmd(devices []device) tea.Cmd {
 	return func() tea.Msg {
 		if len(devices) == 0 {
