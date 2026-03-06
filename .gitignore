@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+# Leafy binary
+leafy
+
 # Test binary, built with `go test -c`
 *.test
 
