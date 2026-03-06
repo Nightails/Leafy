@@ -30,14 +30,15 @@ chmod +x leafy
 
 ## 📖 Usage
 
-General usage instructions:
+**Leafy** is designed for a simple, hands-off workflow:
 
-- **Automatic Scanning**: The app starts scanning for USB devices immediately upon launch.
-- **Navigation**: Use `j`/`k` or arrow keys to move through the list of detected devices.
-- **Mounting**: Press `enter` to mount the selected device.
-- **Manual Scan**: Press `s` at any time to trigger a new scan of your USB ports.
-- **Continue**: Press `tab` to finish device selection and proceed to media selection.
-- **Exiting**: Press `ctrl+c` to safely exit the application.
+1.  **Automatic Scanning & Mounting**: Upon launch, the app automatically scans for connected USB devices and mounts any unmounted partitions.
+2.  **Media Detection**: It immediately searches for media files (audio and video formats) on the mounted devices.
+3.  **Media Selection**: Detected media files are displayed in a list. Use arrow keys or `j`/`k` to navigate.
+4.  **Exiting**: Press `q` or `ctrl+c` to exit. This will automatically unmount the devices that were mounted by the app.
+
+> [!NOTE]
+> Media selection and transferring are currently being implemented. Check back for updates!
 
 ## 🤝 Contributing
 

@@ -1,16 +1,16 @@
-package transfer
+package file
 
 import (
 	"io"
 	"time"
 )
 
-type progressFn func(copied, total int64)
+type ProgressFn func(copied, total int64)
 
 type progressWriter struct {
 	w        io.Writer
 	total    int64
-	progress progressFn
+	progress ProgressFn
 
 	interval time.Duration
 	lastEmit time.Time
@@ -18,7 +18,7 @@ type progressWriter struct {
 	enabled  bool
 }
 
-func newProgressWriter(w io.Writer, total int64, progress progressFn, interval time.Duration) *progressWriter {
+func newProgressWriter(w io.Writer, total int64, progress ProgressFn, interval time.Duration) *progressWriter {
 	return &progressWriter{
 		w:        w,
 		total:    total,
@@ -29,6 +29,7 @@ func newProgressWriter(w io.Writer, total int64, progress progressFn, interval t
 	}
 }
 
+// Write implements io.Writer.
 func (p *progressWriter) Write(b []byte) (int, error) {
 	n, err := p.w.Write(b)
 	p.copied += int64(n)
@@ -39,6 +40,7 @@ func (p *progressWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
+// finish calls the progress function with the total number of bytes copied.
 func (p *progressWriter) finish() {
 	if p.enabled {
 		p.progress(p.copied, p.total)

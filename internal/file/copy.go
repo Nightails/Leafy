@@ -1,15 +1,17 @@
-package transfer
+package file
 
 import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"golang.org/x/sys/unix"
 )
 
-func copyFileWithProgress(src, dst string, progress progressFn) error {
+// CopyWithProgress copies a file from src to dst while providing progress updates via the progress callback.
+func CopyWithProgress(src, dst string, progress ProgressFn) error {
 	// reserve permission
 	si, err := os.Lstat(src)
 	if err != nil {
@@ -26,7 +28,7 @@ func copyFileWithProgress(src, dst string, progress progressFn) error {
 		return fmt.Errorf("get atime and mtime: %w", err)
 	}
 
-	if err := os.MkdirAll(dst, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return fmt.Errorf("mkdir dst dir: %w", err)
 	}
 
@@ -80,6 +82,7 @@ func copyFileWithProgress(src, dst string, progress progressFn) error {
 	return nil
 }
 
+// statATimeMTime retrieves access and modification timestamps of the file at the specified path.
 func statATimeMTime(path string) (atime, mtime unix.Timespec, err error) {
 	var st unix.Stat_t
 	if err := unix.Stat(path, &st); err != nil {
@@ -88,6 +91,7 @@ func statATimeMTime(path string) (atime, mtime unix.Timespec, err error) {
 	return st.Atim, st.Mtim, nil
 }
 
+// setATimeMTime sets the access and modification timestamps of the file at the specified path.
 func setATimeMTime(path string, atime, mtime unix.Timespec) error {
 	return unix.UtimesNano(path, []unix.Timespec{atime, mtime})
 }
