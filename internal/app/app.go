@@ -18,6 +18,7 @@ const (
 	media = iota
 	destination
 	copying
+	finished
 )
 
 type Model struct {
@@ -76,7 +77,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case "ctrl+c":
-			// TODO: check for running tasks
+			if m.currStep == copying {
+				return m, nil
+			}
+			// TODO: implement canceling
 			return m, tea.Batch(
 				removeDevicesCmd(m.state.devices),
 				tea.Quit,
@@ -92,6 +96,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter", "return":
 			switch m.currStep {
+			default:
+				// do nothing while copying and finished
+				return m, nil
+
 			case media:
 				for _, i := range m.mediaList.Items() {
 					mi := i.(mediumItem)
@@ -111,6 +119,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if dest == "" {
 					return m, nil
 				}
+
+				dest, err := expandHome(dest)
+				if err != nil {
+					m.err = err
+					return m, nil
+				}
+
 				// TODO: apply naming scheme with increment
 				for i := range m.state.media {
 					m.state.media[i].dest = filepath.Join(dest, m.state.media[i].name)
@@ -118,13 +133,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currStep++
 				m.destInput.Blur()
 				return m, copyMediaCmd(m.state.media)
-
-			case copying:
-				// Do nothing while copying
-				// Only interaction is quitting/cancelling
-				return m, nil
 			}
-			return m, nil
 		}
 
 	case errMsg:
@@ -176,6 +185,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case copyFinishedMsg:
+		m.currStep = finished
 		return m, nil
 
 	}
@@ -217,6 +227,10 @@ func (m Model) View() string {
 	}
 
 	b.WriteString("\n\n")
-	b.WriteString("[j/k] up/down | [space] select | [enter] confirm | [ctrl+c] quit")
+	if m.currStep == copying {
+		b.WriteString("[copying in progress: quitting disabled]")
+	} else {
+		b.WriteString("[j/k] up/down | [space] select | [enter] confirm | [ctrl+c] quit")
+	}
 	return b.String()
 }
