@@ -1,8 +1,5 @@
 # 🌿 Leafy
 
-> [!WARNING]
-> This project is currently in development and subject to changes. Use it at your own risk.
-
 **Leafy** is your cozy terminal companion for transferring media from external drives. It turns the chore of manual file transfers into a breezy, interactive experience right in your shell.
 
 ## 💡 Motivation
@@ -33,12 +30,14 @@ chmod +x leafy
 **Leafy** is designed for a simple, hands-off workflow:
 
 1.  **Automatic Scanning & Mounting**: Upon launch, the app automatically scans for connected USB devices and mounts any unmounted partitions.
-2.  **Media Detection**: It immediately searches for media files (audio and video formats) on the mounted devices.
-3.  **Media Selection**: Detected media files are displayed in a list. Use arrow keys or `j`/`k` to navigate.
-4.  **Exiting**: Press `q` or `ctrl+c` to exit. This will automatically unmount the devices that were mounted by the app.
-
-> [!NOTE]
-> Media selection and transferring are currently being implemented. Check back for updates!
+2.  **Media Detection**: It searches for media files (audio and video formats) on the mounted devices.
+3.  **Media Selection**: Detected media files are displayed in a list. 
+    - Use arrow keys or `j`/`k` to navigate.
+    - Press `space` to select or deselect files.
+    - Press `enter` to confirm your selection and proceed.
+4.  **Destination Selection**: Enter the path where you want to copy the files (supports `~` for home directory).
+5.  **Transferring**: The app copies the selected files to the destination with a real-time progress bar.
+6.  **Exiting**: Press `ctrl+c` to exit. This will automatically unmount the devices that were mounted by the app.
 
 ## 🤝 Contributing
 
