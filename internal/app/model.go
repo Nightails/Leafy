@@ -69,7 +69,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			return m, nil
-		case "q", "ctrl+c":
+		case "ctrl+c":
 			// TODO: check for running tasks
 			return m, tea.Batch(
 				removeDevicesCmd(m.state.devices),
@@ -85,8 +85,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", "return":
 			switch m.currStep {
 			case media:
-				// TODO: store selected media to state.media list
-				// TODO: proceed to the destination step
+				for _, i := range m.mediaList.Items() {
+					mi := i.(mediumItem)
+					if mi.selected {
+						m.state.media = append(m.state.media, mi.medium)
+					}
+				}
+				if m.state.media == nil {
+					return m, nil
+				}
+				m.currStep++
+				m.destInput.Focus()
 				return m, nil
 			case destination:
 				// TODO: store the destination to each medium dest, with naming applied
@@ -104,6 +113,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tea.WindowSizeMsg:
 		m.mediaList.SetWidth(msg.Width)
+		return m, nil
 	case devicesMsg:
 		if len(msg) == 0 {
 			return m, nil
