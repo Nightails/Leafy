@@ -33,6 +33,7 @@ func New() Model {
 	l.SetShowPagination(false)
 	l.SetShowHelp(false)
 	l.SetFilteringEnabled(false)
+	l.DisableQuitKeybindings()
 
 	ti := textinput.New()
 	ti.Placeholder = "Destination Path"
@@ -100,6 +101,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case destination:
 				// TODO: store the destination to each medium dest, with naming applied
 				// TODO: proceed to the copying step
+				dest := m.destInput.Value()
+				for _, m := range m.state.media {
+					m.dest = dest // directly assign the destination for now
+				}
 				return m, nil
 			case copying:
 				// Do nothing while copying
