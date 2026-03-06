@@ -34,5 +34,7 @@ func (mi mediaItemDelegate) Render(w io.Writer, m list.Model, index int, item li
 	} else {
 		_, _ = io.WriteString(w, "[ ] ")
 	}
-	_, _ = io.WriteString(w, i.medium.name)
+
+	fileSize := formatFileSize(i.medium.total)
+	_, _ = io.WriteString(w, i.medium.name+" ("+fileSize+")")
 }

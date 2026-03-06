@@ -73,8 +73,10 @@ func findMediaCmd(devices []device) tea.Cmd {
 		}
 		for _, f := range files {
 			media = append(media, medium{
-				name: f.Name,
-				src:  f.Path,
+				name:   f.Name,
+				format: f.Ext,
+				src:    f.Path,
+				total:  f.Size,
 			})
 		}
 		return mediaMsg(media)

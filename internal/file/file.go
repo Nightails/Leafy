@@ -12,6 +12,7 @@ type File struct {
 	Name string
 	Ext  string
 	Path string
+	Size int64
 }
 
 // GetFiles scans the provided File paths and returns a list of File paths.
@@ -31,7 +32,7 @@ func GetFiles(srcPaths, formats []string) ([]File, error) {
 		if !info.IsDir() {
 			supportedFiles = addFile(
 				supportedFiles,
-				File{info.Name(), filepath.Ext(p), p},
+				File{info.Name(), filepath.Ext(p), p, info.Size()},
 				formats,
 			)
 			continue
@@ -44,9 +45,10 @@ func GetFiles(srcPaths, formats []string) ([]File, error) {
 			if d.IsDir() {
 				return nil
 			}
+			inf, _ := d.Info()
 			supportedFiles = addFile(
 				supportedFiles,
-				File{d.Name(), filepath.Ext(path), path},
+				File{d.Name(), filepath.Ext(path), path, inf.Size()},
 				formats,
 			)
 			return nil
