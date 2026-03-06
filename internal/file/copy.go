@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"golang.org/x/sys/unix"
 )
 
 // CopyWithProgress copies a file from src to dst while providing progress updates via the progress callback.
-func CopyWithProgress(src, dst string, progress progressFn) error {
+func CopyWithProgress(src, dst string, progress ProgressFn) error {
 	// reserve permission
 	si, err := os.Lstat(src)
 	if err != nil {
@@ -27,7 +28,7 @@ func CopyWithProgress(src, dst string, progress progressFn) error {
 		return fmt.Errorf("get atime and mtime: %w", err)
 	}
 
-	if err := os.MkdirAll(dst, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return fmt.Errorf("mkdir dst dir: %w", err)
 	}
 

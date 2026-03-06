@@ -3,6 +3,7 @@
 package app
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -20,11 +21,12 @@ const (
 )
 
 type Model struct {
-	state     state
-	currStep  step
-	mediaList list.Model
-	destInput textinput.Model
-	err       error
+	state      state
+	currStep   step
+	mediaList  list.Model
+	destInput  textinput.Model
+	copyEvents <-chan tea.Msg
+	err        error
 }
 
 func New() Model {
@@ -40,11 +42,12 @@ func New() Model {
 	ti.Placeholder = "Destination Path"
 
 	return Model{
-		state:     state{},
-		currStep:  media,
-		mediaList: l,
-		destInput: ti,
-		err:       nil,
+		state:      state{},
+		currStep:   media,
+		mediaList:  l,
+		destInput:  ti,
+		copyEvents: nil,
+		err:        nil,
 	}
 }
 
@@ -71,12 +74,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			return m, nil
+
 		case "ctrl+c":
 			// TODO: check for running tasks
 			return m, tea.Batch(
 				removeDevicesCmd(m.state.devices),
 				tea.Quit,
 			)
+
 		case " ":
 			index := m.mediaList.Index()
 			item := m.mediaList.SelectedItem()
@@ -84,6 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			selectItem.selected = !selectItem.selected
 			m.mediaList.SetItem(index, selectItem)
 			return m, nil
+
 		case "enter", "return":
 			switch m.currStep {
 			case media:
@@ -99,6 +105,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currStep++
 				m.destInput.Focus()
 				return m, nil
+
 			case destination:
 				dest := m.destInput.Value()
 				if dest == "" {
@@ -106,12 +113,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				// TODO: apply naming scheme with increment
 				for i := range m.state.media {
-					m.state.media[i].dest = filepath.Join(dest, m.state.media[i].name, m.state.media[i].format)
+					m.state.media[i].dest = filepath.Join(dest, m.state.media[i].name)
 				}
 				m.currStep++
 				m.destInput.Blur()
-				// TODO: start copy tasks
-				return m, nil
+				return m, copyMediaCmd(m.state.media)
+
 			case copying:
 				// Do nothing while copying
 				// Only interaction is quitting/cancelling
@@ -119,18 +126,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+
 	case errMsg:
 		m.err = msg
 		return m, nil
+
 	case tea.WindowSizeMsg:
 		m.mediaList.SetWidth(msg.Width)
 		return m, nil
+
 	case devicesMsg:
 		if len(msg) == 0 {
 			return m, nil
 		}
 		m.state.devices = msg
 		return m, findMediaCmd(msg)
+
 	case mediaMsg:
 		if len(msg) == 0 {
 			return m, nil
@@ -142,14 +153,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.mediaList.SetItems(items)
 		m.mediaList.SetHeight(len(items))
 		return m, nil
-		// TODO: handle msg for transferring media
+
+	case copyStartedMsg:
+		m.copyEvents = msg.Ch
+		return m, listenCopyCmd(m.copyEvents)
+
+	case copyProgressMsg:
+		if msg.Index >= 0 && msg.Index < len(m.state.media) {
+			m.state.media[msg.Index].copied = msg.Copied
+			m.state.media[msg.Index].total = msg.Total
+		}
+		return m, listenCopyCmd(m.copyEvents)
+
+	case copyDoneMsg:
+		if msg.Index >= 0 && msg.Index < len(m.state.media) {
+			m.state.media[msg.Index].copied = m.state.media[msg.Index].total
+		}
+		return m, listenCopyCmd(m.copyEvents)
+
+	case copyErrorMsg:
+		m.err = msg.Err
+		return m, nil
+
+	case copyFinishedMsg:
+		return m, nil
+
 	}
 	return m, nil
 }
 
 func (m Model) View() string {
-	// TODO: 3.display transferring progress
-	// TODO: 4.display help bar
 	var b strings.Builder
 	if m.err != nil {
 		b.WriteString(m.err.Error())
@@ -168,7 +201,19 @@ func (m Model) View() string {
 	if m.currStep >= copying {
 		b.WriteString("\n\n")
 		b.WriteString("Copying Progress:\n")
-		// TODO: print the copying progress
+		for i := range m.state.media {
+			percent := 0.0
+			if m.state.media[i].total > 0 {
+				percent = float64(m.state.media[i].copied) / float64(m.state.media[i].total) * 100
+			}
+			b.WriteString(fmt.Sprintf(
+				"%s %s/%s (%.0f%%)\n",
+				m.state.media[i].name,
+				formatFileSize(m.state.media[i].copied),
+				formatFileSize(m.state.media[i].total),
+				percent,
+			))
+		}
 	}
 
 	b.WriteString("\n\n")

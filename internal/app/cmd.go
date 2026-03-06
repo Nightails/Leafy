@@ -83,10 +83,42 @@ func findMediaCmd(devices []device) tea.Cmd {
 	}
 }
 
-// copyMedia copies given media to destination path.
-func copyMedia(media []medium) tea.Cmd {
+// copyMediaCmd copies given media to destination path.
+func copyMediaCmd(media []medium) tea.Cmd {
 	return func() tea.Msg {
-		// TODO: implements copying file logic
-		return nil
+		if len(media) == 0 {
+			return nil
+		}
+
+		ch := make(chan tea.Msg)
+
+		go func() {
+			defer close(ch)
+
+			for i := range media {
+				if err := file.CopyWithProgress(media[i].src, media[i].dest, func(copied, total int64) {
+					ch <- copyProgressMsg{i, copied, total}
+				}); err != nil {
+					ch <- copyErrorMsg{i, err}
+					return
+				}
+
+				ch <- copyDoneMsg{i}
+			}
+
+			ch <- copyFinishedMsg{}
+		}()
+
+		return copyStartedMsg{ch}
+	}
+}
+
+func listenCopyCmd(ch <-chan tea.Msg) tea.Cmd {
+	return func() tea.Msg {
+		msg, ok := <-ch
+		if !ok {
+			return copyFinishedMsg{}
+		}
+		return msg
 	}
 }
