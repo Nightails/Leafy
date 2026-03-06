@@ -1,4 +1,4 @@
-package transfer
+package file
 
 import (
 	"fmt"
@@ -9,7 +9,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func copyFileWithProgress(src, dst string, progress progressFn) error {
+// CopyWithProgress copies a file from src to dst while providing progress updates via the progress callback.
+func CopyWithProgress(src, dst string, progress progressFn) error {
 	// reserve permission
 	si, err := os.Lstat(src)
 	if err != nil {
