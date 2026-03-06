@@ -22,6 +22,7 @@ const (
 )
 
 type Model struct {
+	version    string
 	state      state
 	currStep   step
 	mediaList  list.Model
@@ -30,7 +31,7 @@ type Model struct {
 	err        error
 }
 
-func New() Model {
+func New(ver string) Model {
 	l := list.New([]list.Item{}, mediaItemDelegate{}, 0, 1)
 	l.SetShowTitle(false)
 	l.SetShowStatusBar(false)
@@ -43,6 +44,7 @@ func New() Model {
 	ti.Placeholder = "Destination Path"
 
 	return Model{
+		version:    ver,
 		state:      state{},
 		currStep:   media,
 		mediaList:  l,
@@ -194,6 +196,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var b strings.Builder
+	b.WriteString(fmt.Sprintf("Leafy %s\n\n", m.version))
+
 	if m.err != nil {
 		b.WriteString(m.err.Error())
 		return b.String()
