@@ -3,6 +3,7 @@
 package app
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -99,12 +100,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.destInput.Focus()
 				return m, nil
 			case destination:
-				// TODO: store the destination to each medium dest, with naming applied
-				// TODO: proceed to the copying step
 				dest := m.destInput.Value()
-				for _, m := range m.state.media {
-					m.dest = dest // directly assign the destination for now
+				if dest == "" {
+					return m, nil
 				}
+				// TODO: apply naming scheme with increment
+				for i := range m.state.media {
+					m.state.media[i].dest = filepath.Join(dest, m.state.media[i].name, m.state.media[i].format)
+				}
+				m.currStep++
+				m.destInput.Blur()
+				// TODO: start copy tasks
 				return m, nil
 			case copying:
 				// Do nothing while copying
@@ -153,14 +159,17 @@ func (m Model) View() string {
 	}
 
 	if m.currStep >= media {
+		b.WriteString("Found media:\n")
 		b.WriteString(m.mediaList.View())
 	}
 	if m.currStep >= destination {
-		b.WriteString("\n")
+		b.WriteString("\n\n")
+		b.WriteString("Destination Path:\n")
 		b.WriteString(m.destInput.View())
 	}
 	if m.currStep >= copying {
-		b.WriteString("\n")
+		b.WriteString("\n\n")
+		b.WriteString("Copying Progress:\n")
 		// TODO: print the copying progress
 	}
 	// TODO: print the help bar
