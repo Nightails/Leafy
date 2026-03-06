@@ -81,6 +81,7 @@ func CopyWithProgress(src, dst string, progress progressFn) error {
 	return nil
 }
 
+// statATimeMTime retrieves access and modification timestamps of the file at the specified path.
 func statATimeMTime(path string) (atime, mtime unix.Timespec, err error) {
 	var st unix.Stat_t
 	if err := unix.Stat(path, &st); err != nil {
@@ -89,6 +90,7 @@ func statATimeMTime(path string) (atime, mtime unix.Timespec, err error) {
 	return st.Atim, st.Mtim, nil
 }
 
+// setATimeMTime sets the access and modification timestamps of the file at the specified path.
 func setATimeMTime(path string, atime, mtime unix.Timespec) error {
 	return unix.UtimesNano(path, []unix.Timespec{atime, mtime})
 }

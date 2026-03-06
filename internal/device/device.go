@@ -1,3 +1,4 @@
+// Package device provides functions for managing USB devices.
 package device
 
 type USBDevice struct {

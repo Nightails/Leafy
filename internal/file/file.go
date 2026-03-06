@@ -1,3 +1,4 @@
+// Package file provides a File Path utility.
 package file
 
 import (

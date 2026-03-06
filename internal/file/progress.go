@@ -29,6 +29,7 @@ func newProgressWriter(w io.Writer, total int64, progress progressFn, interval t
 	}
 }
 
+// Write implements io.Writer.
 func (p *progressWriter) Write(b []byte) (int, error) {
 	n, err := p.w.Write(b)
 	p.copied += int64(n)
@@ -39,6 +40,7 @@ func (p *progressWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
+// finish calls the progress function with the total number of bytes copied.
 func (p *progressWriter) finish() {
 	if p.enabled {
 		p.progress(p.copied, p.total)
