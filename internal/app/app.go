@@ -148,8 +148,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	// TODO: 1.display found file files
-	// TODO: 2.display prompt for destination path
 	// TODO: 3.display transferring progress
 	// TODO: 4.display help bar
 	var b strings.Builder
@@ -172,6 +170,8 @@ func (m Model) View() string {
 		b.WriteString("Copying Progress:\n")
 		// TODO: print the copying progress
 	}
-	// TODO: print the help bar
+
+	b.WriteString("\n\n")
+	b.WriteString("[j/k] up/down | [space] select | [enter] confirm | [ctrl+c] quit")
 	return b.String()
 }
