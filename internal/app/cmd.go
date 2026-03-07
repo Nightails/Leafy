@@ -25,6 +25,12 @@ func initDevicesCmd() tea.Cmd {
 					d.Path,
 					d.Mountpoint,
 				})
+			} else {
+				mdevs = append(mdevs, device{
+					d.Name,
+					d.Path,
+					d.Mountpoint,
+				})
 			}
 		}
 		return devicesMsg(mdevs)
