@@ -7,18 +7,9 @@ import (
 )
 
 var (
-	TextStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color("244")).PaddingLeft(1)
-	TextHighlightStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("84"))
+	TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("255"))
 
-	TabSelectedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("84"))
-	TabTextStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-
-	ItemTextStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-	ItemStyle         = ItemTextStyle.PaddingLeft(3)
-	SelectedItemStyle = ItemStyle.Foreground(lipgloss.Color("84")).PaddingLeft(1)
-
-	SpinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("84")).PaddingLeft(1)
-	HelpStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("244")).PaddingLeft(1).PaddingBottom(1)
+	HelpTextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
 )
 
 const (

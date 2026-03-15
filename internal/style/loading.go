@@ -9,7 +9,6 @@ import (
 func NewLineSpinner() spinner.Model {
 	s := spinner.New()
 	s.Spinner = spinner.Line
-	s.Style = SpinnerStyle
 	return s
 }
 
