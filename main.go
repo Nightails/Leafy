@@ -7,7 +7,7 @@ import (
 	"github.com/nightails/leafy/internal/app"
 )
 
-var version = "dev"
+var version = "v0.1.1-dev"
 
 func main() {
 	m := app.New(version)
