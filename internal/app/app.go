@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nightails/leafy/internal/style"
 )
 
 type step int
@@ -229,12 +230,16 @@ func (m Model) View() string {
 			))
 		}
 	}
+	body := style.TextStyle.Render(b.String())
 
-	b.WriteString("\n\n")
+	var h strings.Builder
+	h.WriteString("\n\n")
 	if m.currStep == copying {
-		b.WriteString("[copying in progress: quitting disabled]")
+		h.WriteString("[copying in progress: quitting disabled]")
 	} else {
-		b.WriteString("[j/k] up/down | [space] select | [enter] confirm | [ctrl+c] quit")
+		h.WriteString("[j/k] up/down | [space] select | [enter] confirm | [ctrl+c] quit")
 	}
-	return b.String()
+	help := style.HelpTextStyle.Render(h.String())
+
+	return body + help
 }
