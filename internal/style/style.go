@@ -7,6 +7,10 @@ import (
 )
 
 var (
+	HeaderStyle = lipgloss.NewStyle().
+			Border(lipgloss.ASCIIBorder()).
+			Foreground(lipgloss.Color("255")).
+			Bold(true)
 	TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("255"))
 
 	HelpTextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
