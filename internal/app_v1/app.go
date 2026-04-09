@@ -1,6 +1,6 @@
-// Package app implements the main loop of the Leafy app.
+// Package app_v1 implements the main loop of the Leafy app_v1.
 // This includes user interactions and prompts.
-package app
+package app_v1
 
 import (
 	"fmt"

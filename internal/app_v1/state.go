@@ -1,4 +1,4 @@
-package app
+package app_v1
 
 type state struct {
 	devices []device // mounted devices
