@@ -7,7 +7,8 @@ import (
 	"github.com/nightails/leafy/internal/app"
 )
 
-var version = "v0.2.0-dev"
+// version of the app. Manually updated.
+const version = "v0.2.0-dev"
 
 func main() {
 	m := app.New(version)
