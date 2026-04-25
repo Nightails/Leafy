@@ -89,7 +89,7 @@ func findMediaCmd(devices []device) tea.Cmd {
 	}
 }
 
-// copyMediaCmd copies given media to destination path.
+// copyMediaCmd copies given media to the destination path.
 func copyMediaCmd(media []medium) tea.Cmd {
 	return func() tea.Msg {
 		if len(media) == 0 {
@@ -116,6 +116,31 @@ func copyMediaCmd(media []medium) tea.Cmd {
 		}()
 
 		return copyStartedMsg{ch}
+	}
+}
+
+// deleteFilesCmd deletes given media.
+func deleteFilesCmd(media []medium) tea.Cmd {
+	return func() tea.Msg {
+		if len(media) == 0 {
+			return nil
+		}
+
+		ch := make(chan tea.Msg)
+		go func() {
+			defer close(ch)
+
+			for i := range media {
+				if err := file.Delete(media[i].dest); err != nil {
+					ch <- errMsg(err)
+					return
+				}
+			}
+
+			ch <- deleteDoneMsg{}
+		}()
+
+		return nil
 	}
 }
 

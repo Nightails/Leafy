@@ -75,6 +75,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, cmd
 				case copying:
 					return m, nil
+				case finished:
+					return m, nil
 				}
 			}
 			return m, nil
@@ -88,6 +90,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				removeDevicesCmd(m.state.devices),
 				tea.Quit,
 			)
+
+		case "x":
+			return m, deleteFilesCmd(m.state.media)
 
 		case " ":
 			index := m.mediaList.Index()
@@ -191,6 +196,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.currStep = finished
 		return m, nil
 
+	case deleteDoneMsg:
+		m.mediaList.SetItems(nil)
+		return m, nil
 	}
 	return m, nil
 }
@@ -231,6 +239,9 @@ func (m Model) View() string {
 			))
 		}
 	}
+	if m.currStep == finished && len(m.state.media) == 0 {
+		b.WriteString("Selected media has been deleted.")
+	}
 	body := style.TextStyle.Render(b.String())
 
 	var h strings.Builder
@@ -238,7 +249,7 @@ func (m Model) View() string {
 	if m.currStep == copying {
 		h.WriteString("[copying in progress: quitting disabled]")
 	} else {
-		h.WriteString("[j/k] up/down | [space] select | [enter] confirm | [ctrl+c] quit")
+		h.WriteString("[j/k] up/down | [space] select | [enter] confirm | [x] delete | [ctrl+c] quit")
 	}
 	help := style.HelpTextStyle.Render(h.String())
 

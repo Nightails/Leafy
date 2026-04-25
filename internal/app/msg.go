@@ -27,3 +27,5 @@ type copyErrorMsg struct {
 	Index int
 	Err   error
 }
+
+type deleteDoneMsg struct{}

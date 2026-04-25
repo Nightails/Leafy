@@ -8,7 +8,7 @@ import (
 )
 
 // version of the app. Manually updated.
-const version = "v0.2.0-dev"
+const version = "v0.2.1-dev"
 
 func main() {
 	m := app.New(version)
