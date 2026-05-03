@@ -131,7 +131,7 @@ func deleteFilesCmd(media []medium) tea.Cmd {
 			defer close(ch)
 
 			for i := range media {
-				if err := file.Delete(media[i].dest); err != nil {
+				if err := file.Delete(media[i].src); err != nil {
 					ch <- errMsg(err)
 					return
 				}
