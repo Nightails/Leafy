@@ -92,7 +92,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			)
 
 		case "x":
-			return m, deleteFilesCmd(m.state.media)
+			var selected []medium
+			for _, i := range m.mediaList.Items() {
+				mi := i.(mediumItem)
+				if mi.selected {
+					selected = append(selected, mi.medium)
+				}
+			}
+			return m, deleteFilesCmd(selected)
 
 		case " ":
 			index := m.mediaList.Index()

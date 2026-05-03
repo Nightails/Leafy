@@ -126,21 +126,13 @@ func deleteFilesCmd(media []medium) tea.Cmd {
 			return nil
 		}
 
-		ch := make(chan tea.Msg)
-		go func() {
-			defer close(ch)
-
-			for i := range media {
-				if err := file.Delete(media[i].src); err != nil {
-					ch <- errMsg(err)
-					return
-				}
+		for i := range media {
+			if err := file.Delete(media[i].src); err != nil {
+				return errMsg(err)
 			}
+		}
 
-			ch <- deleteDoneMsg{}
-		}()
-
-		return nil
+		return deleteDoneMsg{}
 	}
 }
 
