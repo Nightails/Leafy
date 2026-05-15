@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/sys/unix"
@@ -47,8 +48,17 @@ func CopyWithProgress(src, dst string, progress ProgressFn) error {
 		return fmt.Errorf("create dst: %w", err)
 	}
 
-	pw := newProgressWriter(out, total, progress, 150*time.Millisecond)
-	_, copyErr := io.Copy(pw, in)
+	var copied atomic.Int64
+	stopProgress := startProgressWriter(&copied, total, progress, 150*time.Millisecond)
+
+	pw := &progressWriter{
+		w:      out,
+		copied: &copied,
+	}
+	buf := make([]byte, 1024*1024)
+	_, copyErr := io.CopyBuffer(pw, in, buf)
+
+	stopProgress()
 
 	syncErr := out.Sync()
 	closeErr := out.Close()
@@ -65,8 +75,6 @@ func CopyWithProgress(src, dst string, progress ProgressFn) error {
 		_ = os.Remove(tmp)
 		return fmt.Errorf("close tmp: %w", closeErr)
 	}
-
-	pw.finish()
 
 	if err := os.Rename(tmp, dst); err != nil {
 		_ = os.Remove(dst)
