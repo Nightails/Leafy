@@ -1,4 +1,4 @@
-package app
+package tui
 
 type state struct {
 	devices []device // mounted devices

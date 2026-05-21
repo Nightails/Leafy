@@ -1,6 +1,6 @@
-// Package app implements the main loop of the Leafy app.
+// Package tui implements the main loop of the Leafy app in TUI mode.
 // This includes user interactions and prompts.
-package app
+package tui
 
 import (
 	"fmt"
